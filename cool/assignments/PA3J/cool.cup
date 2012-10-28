@@ -231,7 +231,6 @@ expression_list
         {: RESULT = (new Expressions(curr_lineno())).appendElement(e); :}
     | expression_list:el expression:e SEMI
         {: RESULT = el.appendElement(e); :}
-    | expression_list:el error SEMI
     ;
 
 expression
@@ -303,5 +302,7 @@ expression
     
     | BOOL_CONST:val
         {: RESULT = new bool_const(curr_lineno(), val); :}
+    
+    | error
     ;
 
