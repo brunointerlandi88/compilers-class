@@ -111,6 +111,8 @@ class
         {: RESULT = new class_c(curr_lineno(), n, AbstractTable.idtable.addString("Object"), f, curr_filename()); :}
     | CLASS TYPEID:n INHERITS TYPEID:p LBRACE feature_list:f RBRACE SEMI
         {: RESULT = new class_c(curr_lineno(), n, p, f, curr_filename()); :}
+    | CLASS TYPEID:n error SEMI
+    | CLASS TYPEID:n INHERITS TYPEID:p error SEMI
     ;
 
 feature_list
