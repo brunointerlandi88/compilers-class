@@ -125,6 +125,7 @@ feature
         {: RESULT = m; :}
     | attribute:a SEMI
         {: RESULT = a; :}
+    | error SEMI
     ;
 
 method
@@ -228,6 +229,7 @@ expression_list
         {: RESULT = (new Expressions(curr_lineno())).appendElement(e); :}
     | expression_list:el expression:e SEMI
         {: RESULT = el.appendElement(e); :}
+    | expression_list:el error SEMI
     ;
 
 expression
