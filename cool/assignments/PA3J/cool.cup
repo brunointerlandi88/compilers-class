@@ -84,15 +84,15 @@ nonterminal Expressions expression_list;
 nonterminal Expression expression;
 
 /* Precedence declarations go here. */
-precedence left ASSIGN;
-precedence left NOT;
-precedence left LT, LE, EQ;
+precedence nonassoc ASSIGN;
+precedence nonassoc NOT;
+precedence nonassoc LT, LE, EQ;
 precedence left PLUS, MINUS;
 precedence left MULT, DIV;
-precedence left ISVOID;
-precedence left NEG;
-precedence left AT;
-precedence left DOT;
+precedence nonassoc ISVOID;
+precedence nonassoc NEG;
+precedence nonassoc AT;
+precedence nonassoc DOT;
 
 program    
     ::= class_list:cl
