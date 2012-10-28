@@ -270,7 +270,7 @@ expression
     | expression:e1 DIV expression:e2
         {: RESULT = new divide(curr_lineno(), e1, e2); :}
     
-    | NEG expression:e1
+    | NOT expression:e1
         {: RESULT = new comp(curr_lineno(), e1); :}
     
     | expression:e1 LT expression:e2
@@ -282,7 +282,7 @@ expression
     | expression:e1 EQ expression:e2
         {: RESULT = new eq(curr_lineno(), e1, e2); :}
     
-    | NOT expression:e1
+    | NEG expression:e1
         {: RESULT = new neg(curr_lineno(), e1); :}
     
     | LPAREN expression:expr RPAREN
