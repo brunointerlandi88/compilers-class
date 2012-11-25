@@ -684,7 +684,7 @@ class dispatch extends Expression {
             argTypes.add(argument.get_type());
         }
         
-        set_type(classTable.getType(context, expr.get_type(), argTypes));
+        set_type(classTable.getType(context, expr.get_type(), name, argTypes));
     }
 
 }

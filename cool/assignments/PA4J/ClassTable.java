@@ -15,7 +15,7 @@ class Type {
     
     Type(AbstractSymbol name_) {
         name = name_;
-        context = null;
+        context = name_;
     }
 }
 
@@ -305,8 +305,32 @@ class ClassTable {
         attributes.get(klass).put(attribute.name, Type.resolve(klass, attribute.type_decl));
     }
     
-    public AbstractSymbol getType(AbstractSymbol klass, AbstractSymbol recType, Vector<AbstractSymbol> argTypes) {
-        return TreeConstants.SELF_TYPE;
+    public AbstractSymbol getType(AbstractSymbol klass, AbstractSymbol recvType, AbstractSymbol methodName, Vector<AbstractSymbol> argTypes) {
+        Signature signature = null;
+        Map<AbstractSymbol,Signature> mTable;
+        
+        recvType = Type.resolve(klass, recvType).context;
+        
+        while (recvType != null) {
+            mTable = methods.get(recvType);
+            if (mTable != null) {
+                signature = mTable.get(methodName);
+            }
+            if (signature != null) {
+                break;
+            }
+            if (recvType.equals(TreeConstants.Object_)) {
+                recvType = null;
+            } else {
+                recvType = parents.get(recvType);
+            }
+        }
+        
+        if (signature == null) {
+            return null;
+        } else {
+            return signature.returnType.name;
+        }
     }
     
     public AbstractSymbol getType(AbstractSymbol klass, AbstractSymbol identifier) {
