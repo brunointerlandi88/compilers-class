@@ -11,9 +11,8 @@ import java.io.PrintStream;
 import java.util.Vector;
 
 
-class TypeMismatchError extends Exception {
+class TypeMismatchError extends Exception {}
 
-}
 
 /** Defines simple phylum Program */
 abstract class Program extends TreeNode {
@@ -282,6 +281,7 @@ class programc extends Program {
         try {
             annotate(classTable);
         } catch (TypeMismatchError e) {
+            System.err.println("filename:line");
             System.err.println("Compilation halted due to static semantic errors.");
             System.exit(1);
         }
@@ -411,8 +411,22 @@ class method extends Feature {
     }
     
     public void annotate(ClassTable classTable, AbstractSymbol context) throws TypeMismatchError {
+        Vector<AbstractSymbol> formalNames = getFormalNames();
         ClassTable.Scope scope = new ClassTable.Scope(classTable, null);
         expr.annotate(classTable, context, scope);
+    }
+    
+    private Vector<AbstractSymbol> getFormalNames() throws TypeMismatchError {
+        Vector<AbstractSymbol> formalNames = new Vector<AbstractSymbol>();
+        formalc formal;
+        for (Enumeration e = formals.getElements(); e.hasMoreElements(); ) {
+            formal = ((formalc)e.nextElement());
+            if (formalNames.indexOf(formal.name) >= 0) {
+                throw new TypeMismatchError();
+            }
+            formalNames.add(formal.name);
+        }
+        return formalNames;
     }
 }
 
@@ -1436,6 +1450,10 @@ class new_ extends Expression {
         out.println(Utilities.pad(n) + "_new");
         dump_AbstractSymbol(out, n + 2, type_name);
         dump_type(out, n);
+    }
+    
+    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) throws TypeMismatchError {
+        set_type(type_name);
     }
 
 }
