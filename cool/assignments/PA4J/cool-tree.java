@@ -1166,6 +1166,14 @@ class neg extends Expression {
         e1.dump_with_types(out, n + 2);
         dump_type(out, n);
     }
+    
+    public void annotate(ClassTable classTable, AbstractSymbol context, Scope scope) throws TypeMismatchError {
+        e1.annotate(classTable, context, scope);
+        if (!e1.get_type().equals(TreeConstants.Int)) {
+            throw new TypeMismatchError();
+        }
+        set_type(TreeConstants.Int);
+    }
 
 }
 
@@ -1203,6 +1211,15 @@ class lt extends Expression {
         e1.dump_with_types(out, n + 2);
         e2.dump_with_types(out, n + 2);
         dump_type(out, n);
+    }
+    
+    public void annotate(ClassTable classTable, AbstractSymbol context, Scope scope) throws TypeMismatchError {
+        e1.annotate(classTable, context, scope);
+        e2.annotate(classTable, context, scope);
+        if (!e1.get_type().equals(TreeConstants.Int) || !e2.get_type().equals(TreeConstants.Int)) {
+            throw new TypeMismatchError();
+        }
+        set_type(TreeConstants.Bool);
     }
 
 }
@@ -1287,6 +1304,15 @@ class leq extends Expression {
         e2.dump_with_types(out, n + 2);
         dump_type(out, n);
     }
+    
+    public void annotate(ClassTable classTable, AbstractSymbol context, Scope scope) throws TypeMismatchError {
+        e1.annotate(classTable, context, scope);
+        e2.annotate(classTable, context, scope);
+        if (!e1.get_type().equals(TreeConstants.Int) || !e2.get_type().equals(TreeConstants.Int)) {
+            throw new TypeMismatchError();
+        }
+        set_type(TreeConstants.Bool);
+    }
 
 }
 
@@ -1319,6 +1345,14 @@ class comp extends Expression {
         out.println(Utilities.pad(n) + "_comp");
         e1.dump_with_types(out, n + 2);
         dump_type(out, n);
+    }
+    
+    public void annotate(ClassTable classTable, AbstractSymbol context, Scope scope) throws TypeMismatchError {
+        e1.annotate(classTable, context, scope);
+        if (!e1.get_type().equals(TreeConstants.Bool)) {
+            throw new TypeMismatchError();
+        }
+        set_type(TreeConstants.Bool);
     }
 
 }
