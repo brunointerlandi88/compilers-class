@@ -985,9 +985,11 @@ class plus extends Expression {
     }
     
     public void annotate(ClassTable classTable, AbstractSymbol context, Scope scope) throws TypeMismatchError {
-        // TODO error checking
         e1.annotate(classTable, context, scope);
         e2.annotate(classTable, context, scope);
+        if (!e1.get_type().equals(TreeConstants.Int) || !e2.get_type().equals(TreeConstants.Int)) {
+            throw new TypeMismatchError();
+        }
         set_type(TreeConstants.Int);
     }
 
@@ -1030,9 +1032,11 @@ class sub extends Expression {
     }
     
     public void annotate(ClassTable classTable, AbstractSymbol context, Scope scope) throws TypeMismatchError {
-        // TODO error checking
         e1.annotate(classTable, context, scope);
         e2.annotate(classTable, context, scope);
+        if (!e1.get_type().equals(TreeConstants.Int) || !e2.get_type().equals(TreeConstants.Int)) {
+            throw new TypeMismatchError();
+        }
         set_type(TreeConstants.Int);
     }
 
@@ -1075,9 +1079,11 @@ class mul extends Expression {
     }
     
     public void annotate(ClassTable classTable, AbstractSymbol context, Scope scope) throws TypeMismatchError {
-        // TODO error checking
         e1.annotate(classTable, context, scope);
         e2.annotate(classTable, context, scope);
+        if (!e1.get_type().equals(TreeConstants.Int) || !e2.get_type().equals(TreeConstants.Int)) {
+            throw new TypeMismatchError();
+        }
         set_type(TreeConstants.Int);
     }
 
@@ -1120,9 +1126,11 @@ class divide extends Expression {
     }
     
     public void annotate(ClassTable classTable, AbstractSymbol context, Scope scope) throws TypeMismatchError {
-        // TODO error checking
         e1.annotate(classTable, context, scope);
         e2.annotate(classTable, context, scope);
+        if (!e1.get_type().equals(TreeConstants.Int) || !e2.get_type().equals(TreeConstants.Int)) {
+            throw new TypeMismatchError();
+        }
         set_type(TreeConstants.Int);
     }
 
