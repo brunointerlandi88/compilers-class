@@ -740,7 +740,7 @@ class cond extends Expression {
         pred.annotate(classTable, context, scope);
         then_exp.annotate(classTable, context, scope);
         else_exp.annotate(classTable, context, scope);
-        set_type(classTable.getCommonAncestor(then_exp.get_type(), else_exp.get_type()));
+        set_type(classTable.getLUB(then_exp.get_type(), else_exp.get_type()));
     }
 
 }
@@ -1503,6 +1503,10 @@ class no_expr extends Expression {
         dump_line(out, n);
         out.println(Utilities.pad(n) + "_no_expr");
         dump_type(out, n);
+    }
+    
+    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) throws TypeMismatchError {
+        set_type(TreeConstants.No_type);
     }
 
 }
