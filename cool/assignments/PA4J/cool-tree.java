@@ -735,6 +735,13 @@ class cond extends Expression {
         else_exp.dump_with_types(out, n + 2);
         dump_type(out, n);
     }
+    
+    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) throws TypeMismatchError {
+        pred.annotate(classTable, context, scope);
+        then_exp.annotate(classTable, context, scope);
+        else_exp.annotate(classTable, context, scope);
+        set_type(classTable.getCommonAncestor(then_exp.get_type(), else_exp.get_type()));
+    }
 
 }
 
@@ -908,6 +915,14 @@ class let extends Expression {
         init.dump_with_types(out, n + 2);
         body.dump_with_types(out, n + 2);
         dump_type(out, n);
+    }
+    
+    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) throws TypeMismatchError {
+        init.annotate(classTable, context, scope); // TODO check type against type_decl
+        ClassTable.Scope inner = new ClassTable.Scope(classTable, scope);
+        inner.declare(context, identifier, type_decl);
+        body.annotate(classTable, context, inner);
+        set_type(body.get_type());
     }
 
 }

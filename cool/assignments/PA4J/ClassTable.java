@@ -75,24 +75,39 @@ class ClassTable {
     public static class Scope {
         private ClassTable classTable;
         private Scope parent;
+        private Map<AbstractSymbol,Type> bindings;
         
         Scope(ClassTable classTable_, Scope parent_) {
             classTable = classTable_;
             parent = parent_;
+            bindings = new HashMap<AbstractSymbol,Type>();
+        }
+        
+        public void declare(AbstractSymbol context, AbstractSymbol identifier, AbstractSymbol type) {
+            bindings.put(identifier, Type.resolve(context, type));
         }
         
         public AbstractSymbol getType(AbstractSymbol identifier, AbstractSymbol context) {
+            Type local = resolve(identifier, context);
+            
             if (identifier.equals(TreeConstants.self)) {
-                return new Type(TreeConstants.SELF_TYPE).name;
-            } else if (inScope(identifier)) {
-                return null; // TODO return local vars
+                return TreeConstants.SELF_TYPE;
+            } else if (local != null) {
+                return local.name;
             } else {
                 return classTable.getType(context, identifier);
             }
         }
         
-        private boolean inScope(AbstractSymbol identifier) {
-            return false;
+        private Type resolve(AbstractSymbol identifier, AbstractSymbol context) {
+            Type type = bindings.get(identifier);
+            if (type != null) {
+                return type;
+            } else if (parent != null) {
+                return parent.resolve(identifier, context);
+            } else {
+                return null;
+            }
         }
     }
 
@@ -336,6 +351,26 @@ class ClassTable {
     
     public AbstractSymbol getType(AbstractSymbol klass, AbstractSymbol identifier) {
         return attributes.get(klass).get(identifier).name;
+    }
+    
+    public AbstractSymbol getCommonAncestor(AbstractSymbol t1, AbstractSymbol t2) {
+        Vector<AbstractSymbol> ancestors = getAncestors(t1);
+        
+        while (ancestors.indexOf(t2) < 0 && t2 != null) {
+            t2 = parents.get(t2);
+        }
+        return t2;
+    }
+    
+    private Vector<AbstractSymbol> getAncestors(AbstractSymbol type) {
+        Vector<AbstractSymbol> ancestors = new Vector<AbstractSymbol>();
+        
+        while (!type.equals(TreeConstants.Object_)) {
+            ancestors.add(type);
+            type = parents.get(type);
+        }
+        ancestors.add(TreeConstants.Object_);
+        return ancestors;
     }
 
     /** Prints line number and file name of the given class.
