@@ -572,6 +572,12 @@ class assign extends Expression {
         expr.dump_with_types(out, n + 2);
         dump_type(out, n);
     }
+    
+    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) throws TypeMismatchError {
+        AbstractSymbol idType = scope.getType(name, context); // TODO check this
+        expr.annotate(classTable, context, scope);
+        set_type(expr.get_type());
+    }
 
 }
 

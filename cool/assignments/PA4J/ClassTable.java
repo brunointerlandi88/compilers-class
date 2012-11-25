@@ -309,8 +309,8 @@ class ClassTable {
         Signature signature = null;
         Map<AbstractSymbol,Signature> mTable;
         
-        recvType = Type.resolve(klass, recvType).context;
         AbstractSymbol origRecvType = recvType;
+        recvType = Type.resolve(klass, recvType).context;
         
         while (recvType != null) {
             mTable = methods.get(recvType);
