@@ -1340,6 +1340,10 @@ class bool_const extends Expression {
         dump_Boolean(out, n + 2, val);
         dump_type(out, n);
     }
+    
+    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) throws TypeMismatchError {
+        set_type(TreeConstants.Bool);
+    }
 
 }
 
@@ -1444,6 +1448,12 @@ class isvoid extends Expression {
         out.println(Utilities.pad(n) + "_isvoid");
         e1.dump_with_types(out, n + 2);
         dump_type(out, n);
+    }
+    
+    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) throws TypeMismatchError {
+        // TODO error checking
+        e1.annotate(classTable, context, scope);
+        set_type(TreeConstants.Bool);
     }
 
 }
