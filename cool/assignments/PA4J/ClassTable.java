@@ -68,6 +68,7 @@ class ClassTable {
     private Map<AbstractSymbol,class_c> classes;
     private Map<AbstractSymbol,AbstractSymbol> parents;
     private Map<AbstractSymbol,Map<AbstractSymbol,Signature>> methods;
+    private Map<AbstractSymbol,Map<AbstractSymbol,Type>> attributes;
     private int semantErrors;
     private PrintStream errorStream;
 
@@ -81,7 +82,17 @@ class ClassTable {
         }
         
         public AbstractSymbol getType(AbstractSymbol identifier, AbstractSymbol context) {
-            return new Type(TreeConstants.SELF_TYPE).name;
+            if (identifier.equals(TreeConstants.self)) {
+                return new Type(TreeConstants.SELF_TYPE).name;
+            } else if (inScope(identifier)) {
+                return null; // TODO return local vars
+            } else {
+                return classTable.getType(context, identifier);
+            }
+        }
+        
+        private boolean inScope(AbstractSymbol identifier) {
+            return false;
         }
     }
 
@@ -256,6 +267,7 @@ class ClassTable {
         classes = new HashMap<AbstractSymbol,class_c>();
         parents = new HashMap<AbstractSymbol,AbstractSymbol>();
         methods = new HashMap<AbstractSymbol,Map<AbstractSymbol,Signature>>();
+        attributes = new HashMap<AbstractSymbol,Map<AbstractSymbol,Type>>();
         
         installBasicClasses();
         
@@ -270,8 +282,10 @@ class ClassTable {
             semantError(klass);
         } else {
             classes.put(klass.name, klass);
-            methods.put(klass.name, new HashMap<AbstractSymbol,Signature>());
             parents.put(klass.name, klass.parent);
+            methods.put(klass.name, new HashMap<AbstractSymbol,Signature>());
+            attributes.put(klass.name, new HashMap<AbstractSymbol,Type>());
+            
             for (Enumeration e = klass.features.getElements(); e.hasMoreElements(); ) {
                 feature = (Feature)e.nextElement();
                 if (feature instanceof method) {
@@ -288,11 +302,15 @@ class ClassTable {
     }
     
     public void visit(AbstractSymbol klass, attr attribute) {
-    
+        attributes.get(klass).put(attribute.name, Type.resolve(klass, attribute.type_decl));
     }
     
     public AbstractSymbol getType(AbstractSymbol klass, AbstractSymbol recType, Vector<AbstractSymbol> argTypes) {
         return TreeConstants.SELF_TYPE;
+    }
+    
+    public AbstractSymbol getType(AbstractSymbol klass, AbstractSymbol identifier) {
+        return attributes.get(klass).get(identifier).name;
     }
 
     /** Prints line number and file name of the given class.

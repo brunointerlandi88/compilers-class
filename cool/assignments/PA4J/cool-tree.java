@@ -11,6 +11,10 @@ import java.io.PrintStream;
 import java.util.Vector;
 
 
+class TypeMismatchError extends Exception {
+
+}
+
 /** Defines simple phylum Program */
 abstract class Program extends TreeNode {
     protected Program(int lineNumber) {
@@ -149,7 +153,7 @@ abstract class Expression extends TreeNode {
             { out.println(Utilities.pad(n) + ": _no_type"); }
     }
     
-    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) {
+    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) throws TypeMismatchError {
         System.err.println("IMPLEMENT ME! " + this.toString());
     }
 
@@ -275,10 +279,15 @@ class programc extends Program {
             System.exit(1);
         }
         
-        annotate(classTable);
+        try {
+            annotate(classTable);
+        } catch (TypeMismatchError e) {
+            System.err.println("Compilation halted due to static semantic errors.");
+            System.exit(1);
+        }
     }
     
-    public void annotate(ClassTable classTable) {
+    public void annotate(ClassTable classTable) throws TypeMismatchError {
         for (Enumeration e = classes.getElements(); e.hasMoreElements(); ) {
             ((class_c)e.nextElement()).annotate(classTable);
         }
@@ -340,14 +349,14 @@ class class_c extends Class_ {
         out.println(Utilities.pad(n + 2) + ")");
     }
     
-    public void annotate(ClassTable classTable) {
+    public void annotate(ClassTable classTable) throws TypeMismatchError {
         Feature feature;
         for (Enumeration e = features.getElements(); e.hasMoreElements(); ) {
             feature = (Feature)e.nextElement();
             if (feature instanceof method) {
                 ((method)feature).annotate(classTable, this.name);
             } else if (feature instanceof attr) {
-                // TODO ((attr)feature).annotate(classTable, this);
+                // TODO ((attr)feature).annotate(classTable, this.name);
             }
         }
     }
@@ -401,7 +410,7 @@ class method extends Feature {
         expr.dump_with_types(out, n + 2);
     }
     
-    public void annotate(ClassTable classTable, AbstractSymbol context) {
+    public void annotate(ClassTable classTable, AbstractSymbol context) throws TypeMismatchError {
         ClassTable.Scope scope = new ClassTable.Scope(classTable, null);
         expr.annotate(classTable, context, scope);
     }
@@ -663,7 +672,7 @@ class dispatch extends Expression {
         dump_type(out, n);
     }
     
-    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) {
+    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) throws TypeMismatchError {
         expr.annotate(classTable, context, scope);
         
         Expression argument;
@@ -834,7 +843,7 @@ class block extends Expression {
         dump_type(out, n);
     }
     
-    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) {
+    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) throws TypeMismatchError {
         AbstractSymbol finalType = TreeConstants.SELF_TYPE;
         Expression expression;
         
@@ -933,7 +942,7 @@ class plus extends Expression {
         dump_type(out, n);
     }
     
-    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) {
+    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) throws TypeMismatchError {
         // TODO error checking
         e1.annotate(classTable, context, scope);
         e2.annotate(classTable, context, scope);
@@ -978,7 +987,7 @@ class sub extends Expression {
         dump_type(out, n);
     }
     
-    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) {
+    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) throws TypeMismatchError {
         // TODO error checking
         e1.annotate(classTable, context, scope);
         e2.annotate(classTable, context, scope);
@@ -1023,7 +1032,7 @@ class mul extends Expression {
         dump_type(out, n);
     }
     
-    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) {
+    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) throws TypeMismatchError {
         // TODO error checking
         e1.annotate(classTable, context, scope);
         e2.annotate(classTable, context, scope);
@@ -1068,7 +1077,7 @@ class divide extends Expression {
         dump_type(out, n);
     }
     
-    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) {
+    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) throws TypeMismatchError {
         // TODO error checking
         e1.annotate(classTable, context, scope);
         e2.annotate(classTable, context, scope);
@@ -1183,6 +1192,13 @@ class eq extends Expression {
         e2.dump_with_types(out, n + 2);
         dump_type(out, n);
     }
+    
+    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) throws TypeMismatchError {
+        // TODO check types of subexpressions
+        e1.annotate(classTable, context, scope);
+        e2.annotate(classTable, context, scope);
+        set_type(TreeConstants.Bool);
+    }
 
 }
 
@@ -1288,7 +1304,7 @@ class int_const extends Expression {
         dump_type(out, n);
     }
     
-    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) {
+    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) throws TypeMismatchError {
         set_type(TreeConstants.Int);
     }
 
@@ -1360,7 +1376,7 @@ class string_const extends Expression {
         dump_type(out, n);
     }
     
-    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) {
+    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) throws TypeMismatchError {
         set_type(TreeConstants.Str);
     }
 
@@ -1491,7 +1507,7 @@ class object extends Expression {
         dump_type(out, n);
     }
     
-    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) {
+    public void annotate(ClassTable classTable, AbstractSymbol context, ClassTable.Scope scope) throws TypeMismatchError {
         set_type(scope.getType(name, context));
     }
 
