@@ -307,6 +307,11 @@ class ClassTable {
                 semantError(source);
                 errorStream.println("filename:line");
             }
+            
+            if (!klass.equals(TreeConstants.Object_) && !classes.containsKey(parent)) {
+                semantError(source);
+                errorStream.println("Class " + klass + " inherits from an undefined class " + parent + ".");
+            }
         }
         
         if (!classes.containsKey(TreeConstants.Main)) {
