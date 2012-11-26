@@ -418,13 +418,9 @@ class method extends Feature {
     }
     
     public void annotate(ClassTable classTable, AbstractSymbol context) throws TypeMismatchError {
-        Vector<AbstractSymbol> formalNames = getFormalNames();
-        Scope scope = new Scope(classTable, null);
-        expr.annotate(classTable, context, scope);
-    }
-    
-    private Vector<AbstractSymbol> getFormalNames() throws TypeMismatchError {
         Vector<AbstractSymbol> formalNames = new Vector<AbstractSymbol>();
+        Scope scope = new Scope(classTable, null);
+        
         formalc formal;
         for (Enumeration e = formals.getElements(); e.hasMoreElements(); ) {
             formal = ((formalc)e.nextElement());
@@ -432,8 +428,10 @@ class method extends Feature {
                 throw new TypeMismatchError();
             }
             formalNames.add(formal.name);
+            scope.declare(context, formal.name, formal.type_decl);
         }
-        return formalNames;
+        
+        expr.annotate(classTable, context, scope);
     }
 }
 
@@ -1261,9 +1259,14 @@ class eq extends Expression {
     }
     
     public void annotate(ClassTable classTable, AbstractSymbol context, Scope scope) throws TypeMismatchError {
-        // TODO check types of subexpressions
         e1.annotate(classTable, context, scope);
         e2.annotate(classTable, context, scope);
+        
+        AbstractSymbol t1 = e1.get_type(), t2 = e2.get_type();
+        
+        if ((t1.equals(TreeConstants.Int) || t2.equals(TreeConstants.Int)) && !t1.equals(t2)) {
+            throw new TypeMismatchError();
+        }
         set_type(TreeConstants.Bool);
     }
 
