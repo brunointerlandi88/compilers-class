@@ -719,7 +719,12 @@ class static_dispatch extends Expression {
             argTypes.add(argument.get_type());
         }
         
-        set_type(classTable.getType(context, type_name, name, argTypes));
+        AbstractSymbol type = classTable.getType(context, type_name, name, argTypes);
+        if (type == null) {
+            throw new TypeMismatchError();
+        } else {
+            set_type(type);
+        }
     }
 
 }
@@ -781,7 +786,12 @@ class dispatch extends Expression {
             argTypes.add(argument.get_type());
         }
         
-        set_type(classTable.getType(context, expr.get_type(), name, argTypes));
+        AbstractSymbol type = classTable.getType(context, expr.get_type(), name, argTypes);
+        if (type == null) {
+            throw new TypeMismatchError();
+        } else {
+            set_type(type);
+        }
     }
 
 }
