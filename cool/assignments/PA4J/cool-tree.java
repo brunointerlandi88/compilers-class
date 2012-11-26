@@ -279,8 +279,10 @@ class programc extends Program {
     public void semant() {
         /* ClassTable constructor may do some semantic analysis */
         ClassTable classTable = new ClassTable(classes);
+        classTable.validate();
 
         if (classTable.errors()) {
+            System.err.println("filename:line");
             System.err.println("Compilation halted due to static semantic errors.");
             System.exit(1);
         }

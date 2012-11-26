@@ -291,6 +291,24 @@ class ClassTable {
         }
     }
     
+    public void validate() {
+        AbstractSymbol parent;
+        class_c source;
+        
+        for (AbstractSymbol klass : classes.keySet()) {
+            source = classes.get(klass);
+            parent = parents.get(klass);
+            
+            if (parent.equals(TreeConstants.Int) ||
+                parent.equals(TreeConstants.Bool) ||
+                parent.equals(TreeConstants.Str) ||
+                parent.equals(TreeConstants.SELF_TYPE)
+               ) {
+                semantError(source);
+            }
+        }
+    }
+    
     public void visit(class_c klass) {
         Feature feature;
         if (classes.containsKey(klass.name)) {
