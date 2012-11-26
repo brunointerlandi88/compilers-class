@@ -351,13 +351,8 @@ class ClassTable {
     }
     
     public void validate() {
-        AbstractSymbol parent;
-        class_c source;
-        
         for (AbstractSymbol klass : classes.keySet()) {
-            source = classes.get(klass);
-            parent = parents.get(klass);
-            validateClass(source, klass, parent);
+            validate(klass);
         }
         
         if (!classes.containsKey(TreeConstants.Main)) {
@@ -366,7 +361,10 @@ class ClassTable {
         }
     }
     
-    private void validateClass(class_c source, AbstractSymbol klass, AbstractSymbol parent) {
+    private void validate(AbstractSymbol klass) {
+        class_c source = classes.get(klass);
+        AbstractSymbol parent = parents.get(klass);
+        
         if (parent.equals(TreeConstants.Int) ||
             parent.equals(TreeConstants.Bool) ||
             parent.equals(TreeConstants.Str) ||
@@ -379,6 +377,31 @@ class ClassTable {
         if (!klass.equals(TreeConstants.Object_) && !classes.containsKey(parent)) {
             semantError(source);
             errorStream.println("Class " + klass + " inherits from an undefined class " + parent + ".");
+        }
+        
+        Feature feature;
+        
+        for (Enumeration e = source.features.getElements(); e.hasMoreElements(); ) {
+            feature = (Feature)e.nextElement();
+            if (feature instanceof method) {
+                validate(source.getFilename(), klass, (method)feature);
+            } else if (feature instanceof attr) {
+                validate(source.getFilename(), klass, (attr)feature);
+            }
+        }
+    }
+    
+    private void validate(AbstractSymbol filename, AbstractSymbol klass, method function) {
+        
+    }
+    
+    private void validate(AbstractSymbol filename, AbstractSymbol klass, attr attribute) {
+        AbstractSymbol parent = parents.get(klass),
+                       type   = getType(parent, attribute.name);
+        
+        if (type != null && !type.equals(attribute.type_decl)) {
+            semantError(filename, attribute);
+            errorStream.println("Compilation halted due to static semantic errors.");
         }
     }
     
