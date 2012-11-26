@@ -331,7 +331,7 @@ class ClassTable {
     
     public void visit(class_c klass) {
         Feature feature;
-        if (classes.containsKey(klass.name)) {
+        if (klass.name.equals(TreeConstants.SELF_TYPE) || classes.containsKey(klass.name)) {
             semantError(klass);
             errorStream.println("filename:line");
         } else {
