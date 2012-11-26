@@ -398,7 +398,14 @@ class ClassTable {
     }
     
     public AbstractSymbol getType(AbstractSymbol klass, AbstractSymbol identifier) {
-        Type attr = attributes.get(klass).get(identifier);
+        Type attr = null;
+        while (!klass.equals(TreeConstants.No_class)) {
+            attr = attributes.get(klass).get(identifier);
+            if (attr != null) {
+                break;
+            }
+            klass = parents.get(klass);
+        }
         if (attr == null) {
             return null;
         } else {
