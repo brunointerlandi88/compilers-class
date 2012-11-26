@@ -706,6 +706,10 @@ class static_dispatch extends Expression {
     public void annotate(ClassTable classTable, AbstractSymbol context, Scope scope) throws TypeMismatchError {
         expr.annotate(classTable, context, scope);
         
+        if (!classTable.isSubtype(context, expr.get_type(), type_name)) {
+            throw new TypeMismatchError();
+        }
+        
         Expression argument;
         Vector<AbstractSymbol> argTypes = new Vector<AbstractSymbol>();
         
