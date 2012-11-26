@@ -1007,7 +1007,16 @@ class let extends Expression {
     }
     
     public void annotate(ClassTable classTable, AbstractSymbol context, Scope scope) throws TypeMismatchError {
-        init.annotate(classTable, context, scope); // TODO check type against type_decl
+        if (identifier.equals(TreeConstants.self)) {
+            throw new TypeMismatchError();
+        }
+        
+        init.annotate(classTable, context, scope);
+        
+        if (!init.get_type().equals(TreeConstants.No_type) && !classTable.isSubtype(context, init.get_type(), type_decl)) {
+            throw new TypeMismatchError();
+        }
+        
         Scope inner = new Scope(classTable, scope);
         inner.declare(context, identifier, type_decl);
         body.annotate(classTable, context, inner);
