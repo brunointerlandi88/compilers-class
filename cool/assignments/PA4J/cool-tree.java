@@ -433,6 +433,10 @@ class method extends Feature {
         }
         
         expr.annotate(classTable, context, scope);
+        
+        if (!classTable.isSubtype(context, expr.get_type(), return_type)) {
+            throw new TypeMismatchError();
+        }
     }
 }
 
