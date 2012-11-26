@@ -477,6 +477,9 @@ class attr extends Feature {
     }
     
     public void annotate(ClassTable classTable, AbstractSymbol context) throws TypeMismatchError {
+        if (name.equals(TreeConstants.self)) {
+            throw new TypeMismatchError();
+        }
         Scope scope = new Scope(classTable, null);
         init.annotate(classTable, context, scope);
         AbstractSymbol t = init.get_type();
@@ -603,6 +606,9 @@ class assign extends Expression {
     }
     
     public void annotate(ClassTable classTable, AbstractSymbol context, Scope scope) throws TypeMismatchError {
+        if (name.equals(TreeConstants.self)) {
+            throw new TypeMismatchError();
+        }
         try {
             AbstractSymbol idType = scope.getType(name, context);
             expr.annotate(classTable, context, scope);
