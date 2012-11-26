@@ -479,6 +479,10 @@ class attr extends Feature {
     public void annotate(ClassTable classTable, AbstractSymbol context) throws TypeMismatchError {
         Scope scope = new Scope(classTable, null);
         init.annotate(classTable, context, scope);
+        AbstractSymbol t = init.get_type();
+        if (!t.equals(TreeConstants.No_type) && !classTable.isSubtype(context, t, type_decl)) {
+            throw new TypeMismatchError();
+        }
     }
 
 }
@@ -599,9 +603,18 @@ class assign extends Expression {
     }
     
     public void annotate(ClassTable classTable, AbstractSymbol context, Scope scope) throws TypeMismatchError {
-        AbstractSymbol idType = scope.getType(name, context); // TODO check this
-        expr.annotate(classTable, context, scope);
-        set_type(expr.get_type());
+        try {
+            AbstractSymbol idType = scope.getType(name, context);
+            expr.annotate(classTable, context, scope);
+            
+            if (!classTable.isSubtype(context, expr.get_type(), idType)) {
+                throw new TypeMismatchError();
+            }
+            set_type(expr.get_type());
+        }
+        catch (ClassTable.Scope.UndefinedIdentifierError e) {
+            throw new TypeMismatchError();
+        }
     }
 
 }
@@ -1619,7 +1632,12 @@ class object extends Expression {
     }
     
     public void annotate(ClassTable classTable, AbstractSymbol context, Scope scope) throws TypeMismatchError {
-        set_type(scope.getType(name, context));
+        try {
+            set_type(scope.getType(name, context));
+        }
+        catch (ClassTable.Scope.UndefinedIdentifierError e) {
+            throw new TypeMismatchError();
+        }
     }
 
 }

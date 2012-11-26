@@ -77,6 +77,8 @@ class ClassTable {
         private Scope parent;
         private Map<AbstractSymbol,Type> bindings;
         
+        public static class UndefinedIdentifierError extends Exception {}
+        
         Scope(ClassTable classTable_, Scope parent_) {
             classTable = classTable_;
             parent = parent_;
@@ -87,15 +89,22 @@ class ClassTable {
             bindings.put(identifier, Type.resolve(context, type));
         }
         
-        public AbstractSymbol getType(AbstractSymbol identifier, AbstractSymbol context) {
+        public AbstractSymbol getType(AbstractSymbol identifier, AbstractSymbol context) throws UndefinedIdentifierError {
             Type local = resolve(identifier, context);
+            AbstractSymbol type;
             
             if (identifier.equals(TreeConstants.self)) {
-                return TreeConstants.SELF_TYPE;
+                type = TreeConstants.SELF_TYPE;
             } else if (local != null) {
-                return local.name;
+                type = local.name;
             } else {
-                return classTable.getType(context, identifier);
+                type = classTable.getType(context, identifier);
+            }
+            
+            if (type == null) {
+                throw new UndefinedIdentifierError();
+            } else {
+                return type;
             }
         }
         
@@ -380,7 +389,12 @@ class ClassTable {
     }
     
     public AbstractSymbol getType(AbstractSymbol klass, AbstractSymbol identifier) {
-        return attributes.get(klass).get(identifier).name;
+        Type attr = attributes.get(klass).get(identifier);
+        if (attr == null) {
+            return null;
+        } else {
+            return attr.name;
+        }
     }
     
     public AbstractSymbol getLUB(AbstractSymbol t1, AbstractSymbol t2) {
@@ -401,6 +415,14 @@ class ClassTable {
         }
         ancestors.add(TreeConstants.Object_);
         return ancestors;
+    }
+    
+    public boolean isSubtype(AbstractSymbol context, AbstractSymbol t1, AbstractSymbol t2) {
+        AbstractSymbol r1 = Type.resolve(context, t1).context,
+                       r2 = Type.resolve(context, t2).context;
+        
+        Vector<AbstractSymbol> ancestors = getAncestors(r1);
+        return ancestors.indexOf(r2) >= 0;
     }
 
     /** Prints line number and file name of the given class.
