@@ -27,23 +27,31 @@ class SelfType extends Type {
 }
 
 class Parameter {
+    private ClassTable classTable;
     public AbstractSymbol name;
     public Type type;
     
-    Parameter(AbstractSymbol name_, Type type_) {
+    Parameter(ClassTable ct, AbstractSymbol name_, Type type_) {
+        classTable = ct;
         name = name_;
         type = type_;
+    }
+    
+    public boolean matches(AbstractSymbol context, AbstractSymbol argType) {
+        return classTable.isSubtype(context, argType, type.name);
     }
 }
 
 class Signature {
+    private ClassTable classTable;
     public AbstractSymbol className;
     public AbstractSymbol name;
     public Vector<Parameter> params;
     public Type returnType;
     private method source;
    
-    Signature(AbstractSymbol klass, method function) {
+    Signature(ClassTable ct, AbstractSymbol klass, method function) {
+        classTable = ct;
         className = klass;
         source = function;
         name = function.name;
@@ -56,8 +64,20 @@ class Signature {
         for (Enumeration e = function.formals.getElements(); e.hasMoreElements(); ) {
             formal = (formalc)e.nextElement();
             type = Type.resolve(klass, formal.type_decl);
-            params.add(new Parameter(formal.name, type));
+            params.add(new Parameter(classTable, formal.name, type));
         }
+    }
+    
+    public boolean matches(AbstractSymbol context, Vector<AbstractSymbol> argTypes) {
+        if (params.size() != argTypes.size()) {
+            return false;
+        }
+        for (int i = 0, n = params.size(); i < n; i++) {
+            if (!params.get(i).matches(context, argTypes.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 }
 
@@ -352,7 +372,7 @@ class ClassTable {
     }
     
     public void visit(AbstractSymbol klass, method function) {
-        methods.get(klass).put(function.name, new Signature(klass, function));
+        methods.get(klass).put(function.name, new Signature(this, klass, function));
     }
     
     public void visit(AbstractSymbol klass, attr attribute) {
@@ -390,7 +410,7 @@ class ClassTable {
             }
         }
         
-        if (signature == null) {
+        if (signature == null || !signature.matches(klass, argTypes)) {
             return null;
         } else {
             return Type.resolve(origRecvType, signature.returnType.name).context;
