@@ -364,7 +364,7 @@ class class_c extends Class_ {
             if (feature instanceof method) {
                 ((method)feature).annotate(classTable, this.name);
             } else if (feature instanceof attr) {
-                // TODO ((attr)feature).annotate(classTable, this.name);
+                ((attr)feature).annotate(classTable, this.name);
             }
         }
     }
@@ -474,6 +474,11 @@ class attr extends Feature {
         dump_AbstractSymbol(out, n + 2, name);
         dump_AbstractSymbol(out, n + 2, type_decl);
         init.dump_with_types(out, n + 2);
+    }
+    
+    public void annotate(ClassTable classTable, AbstractSymbol context) throws TypeMismatchError {
+        Scope scope = new Scope(classTable, null);
+        init.annotate(classTable, context, scope);
     }
 
 }
