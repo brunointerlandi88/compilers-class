@@ -46,17 +46,18 @@ class Signature {
     private ClassTable classTable;
     public AbstractSymbol className;
     public AbstractSymbol name;
+    public int arity;
     public List<Parameter> params;
     public Type returnType;
     private method source;
    
     Signature(ClassTable ct, AbstractSymbol klass, method function) {
         classTable = ct;
-        className = klass;
-        source = function;
-        name = function.name;
+        className  = klass;
+        source     = function;
+        name       = function.name;
         returnType = Type.resolve(klass, function.return_type);
-        params = new Vector<Parameter>();
+        params     = new Vector<Parameter>();
         
         formalc formal;
         Type type;
@@ -66,6 +67,7 @@ class Signature {
             type = Type.resolve(klass, formal.type_decl);
             params.add(new Parameter(classTable, formal.name, type));
         }
+        arity = params.size();
     }
     
     public boolean matches(AbstractSymbol context, List<AbstractSymbol> argTypes) {
@@ -78,6 +80,10 @@ class Signature {
             }
         }
         return true;
+    }
+    
+    public boolean compatible(Signature override) {
+        return arity == override.arity;
     }
 }
 
@@ -392,12 +398,17 @@ class ClassTable {
     }
     
     private void validate(AbstractSymbol filename, AbstractSymbol klass, method function) {
+        Signature signature = methods.get(klass).get(function.name),
+                  parent    = getSignature(parents.get(klass), function.name);
         
+        if (parent != null && !parent.compatible(signature)) {
+            semantError(filename, function);
+            errorStream.println("Compilation halted due to static semantic errors.");
+        }
     }
     
     private void validate(AbstractSymbol filename, AbstractSymbol klass, attr attribute) {
-        AbstractSymbol parent = parents.get(klass),
-                       type   = getType(parent, attribute.name);
+        AbstractSymbol type = getType(parents.get(klass), attribute.name);
         
         if (type != null && !type.equals(attribute.type_decl)) {
             semantError(filename, attribute);
@@ -414,27 +425,31 @@ class ClassTable {
         return !identifier.equals(TreeConstants.self);
     }
     
-    public AbstractSymbol getType(AbstractSymbol klass, AbstractSymbol recvType, AbstractSymbol methodName, List<AbstractSymbol> argTypes) {
+    private Signature getSignature(AbstractSymbol klass, AbstractSymbol methodName) {
         Signature signature = null;
         Map<AbstractSymbol,Signature> mTable;
         
-        AbstractSymbol origRecvType = recvType;
-        recvType = Type.resolve(klass, recvType).context;
-        
-        while (recvType != null) {
-            mTable = methods.get(recvType);
+        while (klass != null) {
+            mTable = methods.get(klass);
             if (mTable != null) {
                 signature = mTable.get(methodName);
             }
             if (signature != null) {
                 break;
             }
-            if (recvType.equals(TreeConstants.Object_)) {
-                recvType = null;
+            if (klass.equals(TreeConstants.Object_)) {
+                klass = null;
             } else {
-                recvType = parents.get(recvType);
+                klass = parents.get(klass);
             }
         }
+        return signature;
+    }
+    
+    public AbstractSymbol getType(AbstractSymbol klass, AbstractSymbol recvType, AbstractSymbol methodName, List<AbstractSymbol> argTypes) {
+        AbstractSymbol origRecvType = recvType;
+        recvType = Type.resolve(klass, recvType).context;
+        Signature signature = getSignature(recvType, methodName);
         
         if (signature == null || !signature.matches(klass, argTypes)) {
             return null;
