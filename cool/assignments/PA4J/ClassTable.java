@@ -320,35 +320,6 @@ class ClassTable {
         }
     }
     
-    public void validate() {
-        AbstractSymbol parent;
-        class_c source;
-        
-        for (AbstractSymbol klass : classes.keySet()) {
-            source = classes.get(klass);
-            parent = parents.get(klass);
-            
-            if (parent.equals(TreeConstants.Int) ||
-                parent.equals(TreeConstants.Bool) ||
-                parent.equals(TreeConstants.Str) ||
-                parent.equals(TreeConstants.SELF_TYPE)
-               ) {
-                semantError(source);
-                errorStream.println("filename:line");
-            }
-            
-            if (!klass.equals(TreeConstants.Object_) && !classes.containsKey(parent)) {
-                semantError(source);
-                errorStream.println("Class " + klass + " inherits from an undefined class " + parent + ".");
-            }
-        }
-        
-        if (!classes.containsKey(TreeConstants.Main)) {
-            semantError();
-            errorStream.println("Class Main is not defined.");
-        }
-    }
-    
     public void visit(class_c klass) {
         Feature feature;
         if (klass.name.equals(TreeConstants.SELF_TYPE) || classes.containsKey(klass.name)) {
@@ -377,6 +348,38 @@ class ClassTable {
     
     public void visit(AbstractSymbol klass, attr attribute) {
         attributes.get(klass).put(attribute.name, Type.resolve(klass, attribute.type_decl));
+    }
+    
+    public void validate() {
+        AbstractSymbol parent;
+        class_c source;
+        
+        for (AbstractSymbol klass : classes.keySet()) {
+            source = classes.get(klass);
+            parent = parents.get(klass);
+            validateClass(source, klass, parent);
+        }
+        
+        if (!classes.containsKey(TreeConstants.Main)) {
+            semantError();
+            errorStream.println("Class Main is not defined.");
+        }
+    }
+    
+    private void validateClass(class_c source, AbstractSymbol klass, AbstractSymbol parent) {
+        if (parent.equals(TreeConstants.Int) ||
+            parent.equals(TreeConstants.Bool) ||
+            parent.equals(TreeConstants.Str) ||
+            parent.equals(TreeConstants.SELF_TYPE)
+           ) {
+            semantError(source);
+            errorStream.println("filename:line");
+        }
+        
+        if (!klass.equals(TreeConstants.Object_) && !classes.containsKey(parent)) {
+            semantError(source);
+            errorStream.println("Class " + klass + " inherits from an undefined class " + parent + ".");
+        }
     }
     
     // TODO roll this into other related checks
