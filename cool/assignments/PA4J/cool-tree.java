@@ -282,7 +282,6 @@ class programc extends Program {
         classTable.validate();
 
         if (classTable.errors()) {
-            System.err.println("filename:line");
             System.err.println("Compilation halted due to static semantic errors.");
             System.exit(1);
         }

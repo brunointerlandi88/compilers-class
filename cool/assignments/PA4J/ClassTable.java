@@ -305,7 +305,13 @@ class ClassTable {
                 parent.equals(TreeConstants.SELF_TYPE)
                ) {
                 semantError(source);
+                errorStream.println("filename:line");
             }
+        }
+        
+        if (!classes.containsKey(TreeConstants.Main)) {
+            semantError();
+            errorStream.println("Class Main is not defined.");
         }
     }
     
@@ -313,6 +319,7 @@ class ClassTable {
         Feature feature;
         if (classes.containsKey(klass.name)) {
             semantError(klass);
+            errorStream.println("filename:line");
         } else {
             classes.put(klass.name, klass);
             parents.put(klass.name, klass.parent);
