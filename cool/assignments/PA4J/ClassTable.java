@@ -434,12 +434,15 @@ class ClassTable {
     }
     
     public AbstractSymbol getLUB(AbstractSymbol context, AbstractSymbol t1, AbstractSymbol t2) {
-        List<AbstractSymbol> ancestors = getAncestors(t1);
+        AbstractSymbol r1 = Type.resolve(context, t1).context,
+                       r2 = Type.resolve(context, t2).context;
         
-        while (ancestors.indexOf(t2) < 0 && t2 != null) {
-            t2 = parents.get(t2);
+        List<AbstractSymbol> ancestors = getAncestors(r1);
+        
+        while (ancestors.indexOf(r2) < 0 && r2 != null) {
+            r2 = parents.get(r2);
         }
-        return t2;
+        return r2;
     }
     
     private List<AbstractSymbol> getAncestors(AbstractSymbol type) {
