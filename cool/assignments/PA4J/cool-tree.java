@@ -422,21 +422,20 @@ class method extends Feature {
             throw new TypeMismatchError();
         }
         
-        Vector<AbstractSymbol> formalNames = new Vector<AbstractSymbol>();
+        Set<AbstractSymbol> formalNames = new HashSet<AbstractSymbol>();
         Scope scope = new Scope(classTable, null);
         
         formalc formal;
         for (Enumeration e = formals.getElements(); e.hasMoreElements(); ) {
             formal = ((formalc)e.nextElement());
             
-            if (formalNames.indexOf(formal.name) >= 0 ||
+            if (!formalNames.add(formal.name) ||
                 formal.type_decl.equals(TreeConstants.SELF_TYPE) ||
                 !classTable.legalVarname(formal.name) ||
                 !classTable.typeExists(formal.type_decl)
                ) {
                 throw new TypeMismatchError();
             }
-            formalNames.add(formal.name);
             scope.declare(context, formal.name, formal.type_decl);
         }
         
@@ -710,7 +709,7 @@ class static_dispatch extends Expression {
         }
         
         Expression argument;
-        Vector<AbstractSymbol> argTypes = new Vector<AbstractSymbol>();
+        List<AbstractSymbol> argTypes = new Vector<AbstractSymbol>();
         
         for (Enumeration e = actual.getElements(); e.hasMoreElements(); ) {
             argument = (Expression)e.nextElement();
@@ -777,7 +776,7 @@ class dispatch extends Expression {
         expr.annotate(classTable, context, scope);
         
         Expression argument;
-        Vector<AbstractSymbol> argTypes = new Vector<AbstractSymbol>();
+        List<AbstractSymbol> argTypes = new Vector<AbstractSymbol>();
         
         for (Enumeration e = actual.getElements(); e.hasMoreElements(); ) {
             argument = (Expression)e.nextElement();

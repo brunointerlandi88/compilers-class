@@ -46,7 +46,7 @@ class Signature {
     private ClassTable classTable;
     public AbstractSymbol className;
     public AbstractSymbol name;
-    public Vector<Parameter> params;
+    public List<Parameter> params;
     public Type returnType;
     private method source;
    
@@ -68,7 +68,7 @@ class Signature {
         }
     }
     
-    public boolean matches(AbstractSymbol context, Vector<AbstractSymbol> argTypes) {
+    public boolean matches(AbstractSymbol context, List<AbstractSymbol> argTypes) {
         if (params.size() != argTypes.size()) {
             return false;
         }
@@ -388,7 +388,7 @@ class ClassTable {
         return !identifier.equals(TreeConstants.self);
     }
     
-    public AbstractSymbol getType(AbstractSymbol klass, AbstractSymbol recvType, AbstractSymbol methodName, Vector<AbstractSymbol> argTypes) {
+    public AbstractSymbol getType(AbstractSymbol klass, AbstractSymbol recvType, AbstractSymbol methodName, List<AbstractSymbol> argTypes) {
         Signature signature = null;
         Map<AbstractSymbol,Signature> mTable;
         
@@ -434,7 +434,7 @@ class ClassTable {
     }
     
     public AbstractSymbol getLUB(AbstractSymbol context, AbstractSymbol t1, AbstractSymbol t2) {
-        Vector<AbstractSymbol> ancestors = getAncestors(t1);
+        List<AbstractSymbol> ancestors = getAncestors(t1);
         
         while (ancestors.indexOf(t2) < 0 && t2 != null) {
             t2 = parents.get(t2);
@@ -442,8 +442,8 @@ class ClassTable {
         return t2;
     }
     
-    private Vector<AbstractSymbol> getAncestors(AbstractSymbol type) {
-        Vector<AbstractSymbol> ancestors = new Vector<AbstractSymbol>();
+    private List<AbstractSymbol> getAncestors(AbstractSymbol type) {
+        List<AbstractSymbol> ancestors = new Vector<AbstractSymbol>();
         
         while (!type.equals(TreeConstants.Object_)) {
             ancestors.add(type);
@@ -461,7 +461,7 @@ class ClassTable {
         AbstractSymbol r1 = Type.resolve(context, t1).context,
                        r2 = Type.resolve(context, t2).context;
         
-        Vector<AbstractSymbol> ancestors = getAncestors(r1);
+        List<AbstractSymbol> ancestors = getAncestors(r1);
         return ancestors.indexOf(r2) >= 0;
     }
 
