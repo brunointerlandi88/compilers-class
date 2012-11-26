@@ -684,6 +684,21 @@ class static_dispatch extends Expression {
         out.println(Utilities.pad(n + 2) + ")");
         dump_type(out, n);
     }
+    
+    public void annotate(ClassTable classTable, AbstractSymbol context, Scope scope) throws TypeMismatchError {
+        expr.annotate(classTable, context, scope);
+        
+        Expression argument;
+        Vector<AbstractSymbol> argTypes = new Vector<AbstractSymbol>();
+        
+        for (Enumeration e = actual.getElements(); e.hasMoreElements(); ) {
+            argument = (Expression)e.nextElement();
+            argument.annotate(classTable, context, scope);
+            argTypes.add(argument.get_type());
+        }
+        
+        set_type(classTable.getType(context, type_name, name, argTypes));
+    }
 
 }
 
