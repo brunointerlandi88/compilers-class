@@ -6,9 +6,8 @@
 //
 //////////////////////////////////////////////////////////
 
-import java.util.Enumeration;
 import java.io.PrintStream;
-import java.util.Vector;
+import java.util.*;
 
 
 class Scope extends ClassTable.Scope {
@@ -937,9 +936,15 @@ class typcase extends Expression {
         branch clause;
         
         expr.annotate(classTable, context, scope);
+        Set<AbstractSymbol> types = new HashSet<AbstractSymbol>();
         
         for (Enumeration e = cases.getElements(); e.hasMoreElements(); ) {
             clause = (branch)e.nextElement();
+            
+            if (!types.add(clause.type_decl)) {
+                throw new TypeMismatchError();
+            }
+            
             clause.annotate(classTable, context, scope);
             if (type == null) {
                 type = clause.expr.get_type();
