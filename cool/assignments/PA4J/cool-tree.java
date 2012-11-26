@@ -566,6 +566,12 @@ class branch extends Case {
         dump_AbstractSymbol(out, n + 2, type_decl);
         expr.dump_with_types(out, n + 2);
     }
+    
+    public void annotate(ClassTable classTable, AbstractSymbol context, Scope scope) throws TypeMismatchError {
+        Scope inner = new Scope(classTable, scope);
+        inner.declare(context, name, type_decl);
+        expr.annotate(classTable, context, inner);
+    }
 
 }
 
@@ -784,7 +790,7 @@ class cond extends Expression {
         pred.annotate(classTable, context, scope);
         then_exp.annotate(classTable, context, scope);
         else_exp.annotate(classTable, context, scope);
-        set_type(classTable.getLUB(then_exp.get_type(), else_exp.get_type()));
+        set_type(classTable.getLUB(context, then_exp.get_type(), else_exp.get_type()));
     }
 
 }
@@ -863,6 +869,26 @@ class typcase extends Expression {
             ((Case)e.nextElement()).dump_with_types(out, n + 2);
         }
         dump_type(out, n);
+    }
+    
+    public void annotate(ClassTable classTable, AbstractSymbol context, Scope scope) throws TypeMismatchError {
+        AbstractSymbol type = null;
+        branch clause;
+        
+        expr.annotate(classTable, context, scope);
+        
+        for (Enumeration e = cases.getElements(); e.hasMoreElements(); ) {
+            clause = (branch)e.nextElement();
+            clause.annotate(classTable, context, scope);
+            if (type == null) {
+                type = clause.expr.get_type();
+            } else {
+                type = classTable.getLUB(context, type, clause.expr.get_type());
+            }
+        }
+        if (type != null) {
+            set_type(type);
+        }
     }
 
 }

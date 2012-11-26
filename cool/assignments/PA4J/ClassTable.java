@@ -397,7 +397,7 @@ class ClassTable {
         }
     }
     
-    public AbstractSymbol getLUB(AbstractSymbol t1, AbstractSymbol t2) {
+    public AbstractSymbol getLUB(AbstractSymbol context, AbstractSymbol t1, AbstractSymbol t2) {
         Vector<AbstractSymbol> ancestors = getAncestors(t1);
         
         while (ancestors.indexOf(t2) < 0 && t2 != null) {
