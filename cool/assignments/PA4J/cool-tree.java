@@ -867,6 +867,16 @@ class loop extends Expression {
         body.dump_with_types(out, n + 2);
         dump_type(out, n);
     }
+    
+    public void annotate(ClassTable classTable, AbstractSymbol context, Scope scope) throws TypeMismatchError {
+        pred.annotate(classTable, context, scope);
+        body.annotate(classTable, context, scope);
+        
+        if (!pred.get_type().equals(TreeConstants.Bool)) {
+            throw new TypeMismatchError();
+        }
+        set_type(TreeConstants.Object_);
+    }
 
 }
 
