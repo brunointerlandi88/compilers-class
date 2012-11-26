@@ -434,6 +434,10 @@ class ClassTable {
     }
     
     public boolean isSubtype(AbstractSymbol context, AbstractSymbol t1, AbstractSymbol t2) {
+        if (t2.equals(TreeConstants.SELF_TYPE)) {
+            return t1.equals(TreeConstants.SELF_TYPE);
+        }
+        
         AbstractSymbol r1 = Type.resolve(context, t1).context,
                        r2 = Type.resolve(context, t2).context;
         
