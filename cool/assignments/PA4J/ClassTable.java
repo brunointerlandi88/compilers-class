@@ -364,6 +364,10 @@ class ClassTable {
         return klass.equals(TreeConstants.SELF_TYPE) || classes.containsKey(klass);
     }
     
+    public boolean legalVarname(AbstractSymbol identifier) {
+        return !identifier.equals(TreeConstants.self);
+    }
+    
     public AbstractSymbol getType(AbstractSymbol klass, AbstractSymbol recvType, AbstractSymbol methodName, Vector<AbstractSymbol> argTypes) {
         Signature signature = null;
         Map<AbstractSymbol,Signature> mTable;

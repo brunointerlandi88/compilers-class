@@ -430,6 +430,9 @@ class method extends Feature {
         for (Enumeration e = formals.getElements(); e.hasMoreElements(); ) {
             formal = ((formalc)e.nextElement());
             
+            if (!classTable.legalVarname(formal.name)) {
+                throw new TypeMismatchError();
+            }
             if (!classTable.typeExists(formal.type_decl)) {
                 throw new TypeMismatchError();
             }
@@ -489,7 +492,7 @@ class attr extends Feature {
     }
     
     public void annotate(ClassTable classTable, AbstractSymbol context) throws TypeMismatchError {
-        if (name.equals(TreeConstants.self)) {
+        if (!classTable.legalVarname(name)) {
             throw new TypeMismatchError();
         }
         if (!classTable.typeExists(type_decl)) {
@@ -583,6 +586,9 @@ class branch extends Case {
     }
     
     public void annotate(ClassTable classTable, AbstractSymbol context, Scope scope) throws TypeMismatchError {
+        if (!classTable.legalVarname(name)) {
+            throw new TypeMismatchError();
+        }
         if (!classTable.typeExists(type_decl)) {
             throw new TypeMismatchError();
         }
@@ -630,7 +636,7 @@ class assign extends Expression {
     }
     
     public void annotate(ClassTable classTable, AbstractSymbol context, Scope scope) throws TypeMismatchError {
-        if (name.equals(TreeConstants.self)) {
+        if (!classTable.legalVarname(name)) {
             throw new TypeMismatchError();
         }
         try {
@@ -1021,7 +1027,7 @@ class let extends Expression {
     }
     
     public void annotate(ClassTable classTable, AbstractSymbol context, Scope scope) throws TypeMismatchError {
-        if (identifier.equals(TreeConstants.self)) {
+        if (!classTable.legalVarname(identifier)) {
             throw new TypeMismatchError();
         }
         if (!classTable.typeExists(type_decl)) {
