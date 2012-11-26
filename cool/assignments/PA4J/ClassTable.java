@@ -17,6 +17,14 @@ class Type {
         name = name_;
         context = name_;
     }
+    
+    public boolean equals(Object other) {
+        return (other instanceof Type) && name.equals(((Type)other).name);
+    }
+    
+    public int hashCode() {
+        return name.hashCode();
+    }
 }
 
 class SelfType extends Type {
@@ -82,8 +90,17 @@ class Signature {
         return true;
     }
     
-    public boolean compatible(Signature override) {
-        return arity == override.arity;
+    public boolean compatible(AbstractSymbol context, Signature override) {
+        if (arity != override.arity) {
+            return false;
+        }
+        
+        for (int i = 0, n = params.size(); i < n; i++) {
+            if (!params.get(i).type.equals(override.params.get(i).type)) {
+                return false;
+            }
+        }
+        return true;
     }
 }
 
@@ -401,7 +418,7 @@ class ClassTable {
         Signature signature = methods.get(klass).get(function.name),
                   parent    = getSignature(parents.get(klass), function.name);
         
-        if (parent != null && !parent.compatible(signature)) {
+        if (parent != null && !parent.compatible(klass, signature)) {
             semantError(filename, function);
             errorStream.println("Compilation halted due to static semantic errors.");
         }
