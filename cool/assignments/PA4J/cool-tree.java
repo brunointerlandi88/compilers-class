@@ -419,12 +419,20 @@ class method extends Feature {
     }
     
     public void annotate(ClassTable classTable, AbstractSymbol context) throws TypeMismatchError {
+        if (!classTable.typeExists(return_type)) {
+            throw new TypeMismatchError();
+        }
+        
         Vector<AbstractSymbol> formalNames = new Vector<AbstractSymbol>();
         Scope scope = new Scope(classTable, null);
         
         formalc formal;
         for (Enumeration e = formals.getElements(); e.hasMoreElements(); ) {
             formal = ((formalc)e.nextElement());
+            
+            if (!classTable.typeExists(formal.type_decl)) {
+                throw new TypeMismatchError();
+            }
             if (formalNames.indexOf(formal.name) >= 0) {
                 throw new TypeMismatchError();
             }
@@ -482,6 +490,9 @@ class attr extends Feature {
     
     public void annotate(ClassTable classTable, AbstractSymbol context) throws TypeMismatchError {
         if (name.equals(TreeConstants.self)) {
+            throw new TypeMismatchError();
+        }
+        if (!classTable.typeExists(type_decl)) {
             throw new TypeMismatchError();
         }
         Scope scope = new Scope(classTable, null);
@@ -572,6 +583,9 @@ class branch extends Case {
     }
     
     public void annotate(ClassTable classTable, AbstractSymbol context, Scope scope) throws TypeMismatchError {
+        if (!classTable.typeExists(type_decl)) {
+            throw new TypeMismatchError();
+        }
         Scope inner = new Scope(classTable, scope);
         inner.declare(context, name, type_decl);
         expr.annotate(classTable, context, inner);
@@ -1008,6 +1022,9 @@ class let extends Expression {
     
     public void annotate(ClassTable classTable, AbstractSymbol context, Scope scope) throws TypeMismatchError {
         if (identifier.equals(TreeConstants.self)) {
+            throw new TypeMismatchError();
+        }
+        if (!classTable.typeExists(type_decl)) {
             throw new TypeMismatchError();
         }
         

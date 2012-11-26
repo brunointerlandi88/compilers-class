@@ -359,6 +359,11 @@ class ClassTable {
         attributes.get(klass).put(attribute.name, Type.resolve(klass, attribute.type_decl));
     }
     
+    // TODO roll this into other related checks
+    public boolean typeExists(AbstractSymbol klass) {
+        return klass.equals(TreeConstants.SELF_TYPE) || classes.containsKey(klass);
+    }
+    
     public AbstractSymbol getType(AbstractSymbol klass, AbstractSymbol recvType, AbstractSymbol methodName, Vector<AbstractSymbol> argTypes) {
         Signature signature = null;
         Map<AbstractSymbol,Signature> mTable;
