@@ -430,13 +430,11 @@ class method extends Feature {
         for (Enumeration e = formals.getElements(); e.hasMoreElements(); ) {
             formal = ((formalc)e.nextElement());
             
-            if (!classTable.legalVarname(formal.name)) {
-                throw new TypeMismatchError();
-            }
-            if (!classTable.typeExists(formal.type_decl)) {
-                throw new TypeMismatchError();
-            }
-            if (formalNames.indexOf(formal.name) >= 0) {
+            if (formalNames.indexOf(formal.name) >= 0 ||
+                formal.type_decl.equals(TreeConstants.SELF_TYPE) ||
+                !classTable.legalVarname(formal.name) ||
+                !classTable.typeExists(formal.type_decl)
+               ) {
                 throw new TypeMismatchError();
             }
             formalNames.add(formal.name);
