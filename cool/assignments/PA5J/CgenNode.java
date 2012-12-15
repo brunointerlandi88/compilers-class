@@ -47,50 +47,50 @@ class CgenNode extends class_ {
      * @param table the class table
      * */
     CgenNode(Class_ c, int basic_status, CgenClassTable table) {
-	super(0, c.getName(), c.getParent(), c.getFeatures(), c.getFilename());
-	this.parent = null;
-	this.children = new Vector();
-	this.basic_status = basic_status;
-	AbstractTable.stringtable.addString(name.getString());
+        super(0, c.getName(), c.getParent(), c.getFeatures(), c.getFilename());
+        this.parent = null;
+        this.children = new Vector();
+        this.basic_status = basic_status;
+        AbstractTable.stringtable.addString(name.getString());
     }
 
     void addChild(CgenNode child) {
-	children.addElement(child);
+        children.addElement(child);
     }
 
     /** Gets the children of this class
      * @return the children
      * */
     Enumeration getChildren() {
-	return children.elements(); 
+        return children.elements(); 
     }
 
     /** Sets the parent of this class.
      * @param parent the parent
      * */
     void setParentNd(CgenNode parent) {
-	if (this.parent != null) {
-	    Utilities.fatalError("parent already set in CgenNode.setParent()");
-	}
-	if (parent == null) {
-	    Utilities.fatalError("null parent in CgenNode.setParent()");
-	}
-	this.parent = parent;
+        if (this.parent != null) {
+            Utilities.fatalError("parent already set in CgenNode.setParent()");
+        }
+        if (parent == null) {
+            Utilities.fatalError("null parent in CgenNode.setParent()");
+        }
+        this.parent = parent;
     }    
-	
+        
 
     /** Gets the parent of this class
      * @return the parent
      * */
     CgenNode getParentNd() {
-	return parent; 
+        return parent; 
     }
 
     /** Returns true is this is a basic class.
      * @return true or false
      * */
     boolean basic() { 
-	return basic_status == Basic; 
+        return basic_status == Basic; 
     }
 }
     

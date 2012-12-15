@@ -207,7 +207,7 @@ public class ASTParser extends java_cup.runtime.lr_parser {
 
     public void syntax_error(Symbol cur_token) {
         System.err.println("??? unexpected error in ast parsing: " + ((ASTLexer)getScanner()).line());
-	System.exit(1);
+        System.exit(1);
     }
 
     public void unrecovered_syntax_error(Symbol cur_token) {
@@ -246,11 +246,11 @@ class CUP$ASTParser$actions {
           case 49: // simple_case ::= LINENO BRANCH ID ID expr 
             {
               branch RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-4)).value;
-		AbstractSymbol n = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
-		AbstractSymbol t = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
-		Expression e = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; RESULT = new branch(l.intValue(), n, t, e); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-4)).value;
+                AbstractSymbol n = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
+                AbstractSymbol t = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
+                Expression e = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; RESULT = new branch(l.intValue(), n, t, e); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(15/*simple_case*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -259,9 +259,9 @@ class CUP$ASTParser$actions {
           case 48: // case_list ::= case_list simple_case 
             {
               Cases RESULT = null;
-		Cases cl = (Cases)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
-		branch c = (branch)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 RESULT = cl.appendElement(c); 
+                Cases cl = (Cases)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
+                branch c = (branch)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 RESULT = cl.appendElement(c); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(14/*case_list*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -270,8 +270,8 @@ class CUP$ASTParser$actions {
           case 47: // case_list ::= simple_case 
             {
               Cases RESULT = null;
-		branch c = (branch)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 RESULT = (new Cases(curr_lineno.intValue())).appendElement(c); 
+                branch c = (branch)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 RESULT = (new Cases(curr_lineno.intValue())).appendElement(c); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(14/*case_list*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -280,9 +280,9 @@ class CUP$ASTParser$actions {
           case 46: // expr_list ::= expr_list expr 
             {
               Expressions RESULT = null;
-		Expressions el = (Expressions)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
-		Expression e = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 RESULT = el.appendElement(e); 
+                Expressions el = (Expressions)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
+                Expression e = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 RESULT = el.appendElement(e); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(13/*expr_list*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -291,8 +291,8 @@ class CUP$ASTParser$actions {
           case 45: // expr_list ::= expr 
             {
               Expressions RESULT = null;
-		Expression e = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 RESULT = (new Expressions(curr_lineno.intValue())).appendElement(e); 
+                Expression e = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 RESULT = (new Expressions(curr_lineno.intValue())).appendElement(e); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(13/*expr_list*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -301,8 +301,8 @@ class CUP$ASTParser$actions {
           case 44: // actuals ::= LPAREN expr_list RPAREN 
             {
               Expressions RESULT = null;
-		Expressions el = (Expressions)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
-		 RESULT = el; 
+                Expressions el = (Expressions)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
+                 RESULT = el; 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(12/*actuals*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -311,7 +311,7 @@ class CUP$ASTParser$actions {
           case 43: // actuals ::= LPAREN RPAREN 
             {
               Expressions RESULT = null;
-		 RESULT = new Expressions(curr_lineno.intValue()); 
+                 RESULT = new Expressions(curr_lineno.intValue()); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(12/*actuals*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -320,8 +320,8 @@ class CUP$ASTParser$actions {
           case 42: // expr_aux ::= LINENO NO_EXPR 
             {
               Expression RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
-		 curr_lineno = l; RESULT = new no_expr(l.intValue()); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
+                 curr_lineno = l; RESULT = new no_expr(l.intValue()); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(10/*expr_aux*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -330,9 +330,9 @@ class CUP$ASTParser$actions {
           case 41: // expr_aux ::= LINENO OBJECT ID 
             {
               Expression RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
-		AbstractSymbol n = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; RESULT = new object(l.intValue(), n); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
+                AbstractSymbol n = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; RESULT = new object(l.intValue(), n); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(10/*expr_aux*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -341,12 +341,12 @@ class CUP$ASTParser$actions {
           case 40: // expr_aux ::= LINENO BOOL INT_CONST 
             {
               Expression RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
-		AbstractSymbol b = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
+                AbstractSymbol b = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; 
             if (b.getString().charAt(0) == '1')
-	      RESULT = new bool_const(l.intValue(), Boolean.TRUE);
-	    else
+              RESULT = new bool_const(l.intValue(), Boolean.TRUE);
+            else
               RESULT = new bool_const(l.intValue(), Boolean.FALSE);
           
               CUP$ASTParser$result = new java_cup.runtime.Symbol(10/*expr_aux*/, RESULT);
@@ -357,9 +357,9 @@ class CUP$ASTParser$actions {
           case 39: // expr_aux ::= LINENO STR STR_CONST 
             {
               Expression RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
-		AbstractSymbol s = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; RESULT = new string_const(l.intValue(), s); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
+                AbstractSymbol s = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; RESULT = new string_const(l.intValue(), s); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(10/*expr_aux*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -368,9 +368,9 @@ class CUP$ASTParser$actions {
           case 38: // expr_aux ::= LINENO INT INT_CONST 
             {
               Expression RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
-		AbstractSymbol i = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; RESULT = new int_const(l.intValue(), i); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
+                AbstractSymbol i = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; RESULT = new int_const(l.intValue(), i); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(10/*expr_aux*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -379,9 +379,9 @@ class CUP$ASTParser$actions {
           case 37: // expr_aux ::= LINENO COMP expr 
             {
               Expression RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
-		Expression e = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; RESULT = new comp(l.intValue(), e); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
+                Expression e = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; RESULT = new comp(l.intValue(), e); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(10/*expr_aux*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -390,10 +390,10 @@ class CUP$ASTParser$actions {
           case 36: // expr_aux ::= LINENO LEQ expr expr 
             {
               Expression RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
-		Expression e1 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
-		Expression e2 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; RESULT = new leq(l.intValue(), e1, e2); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
+                Expression e1 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
+                Expression e2 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; RESULT = new leq(l.intValue(), e1, e2); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(10/*expr_aux*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -402,10 +402,10 @@ class CUP$ASTParser$actions {
           case 35: // expr_aux ::= LINENO EQ expr expr 
             {
               Expression RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
-		Expression e1 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
-		Expression e2 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; RESULT = new eq(l.intValue(), e1, e2); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
+                Expression e1 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
+                Expression e2 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; RESULT = new eq(l.intValue(), e1, e2); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(10/*expr_aux*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -414,10 +414,10 @@ class CUP$ASTParser$actions {
           case 34: // expr_aux ::= LINENO LT expr expr 
             {
               Expression RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
-		Expression e1 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
-		Expression e2 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; RESULT = new lt(l.intValue(), e1, e2); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
+                Expression e1 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
+                Expression e2 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; RESULT = new lt(l.intValue(), e1, e2); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(10/*expr_aux*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -426,9 +426,9 @@ class CUP$ASTParser$actions {
           case 33: // expr_aux ::= LINENO NEG expr 
             {
               Expression RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
-		Expression e = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; RESULT = new neg(l.intValue(), e); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
+                Expression e = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; RESULT = new neg(l.intValue(), e); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(10/*expr_aux*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -437,10 +437,10 @@ class CUP$ASTParser$actions {
           case 32: // expr_aux ::= LINENO DIVIDE expr expr 
             {
               Expression RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
-		Expression e1 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
-		Expression e2 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; RESULT = new divide(l.intValue(), e1, e2); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
+                Expression e1 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
+                Expression e2 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; RESULT = new divide(l.intValue(), e1, e2); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(10/*expr_aux*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -449,10 +449,10 @@ class CUP$ASTParser$actions {
           case 31: // expr_aux ::= LINENO MUL expr expr 
             {
               Expression RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
-		Expression e1 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
-		Expression e2 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; RESULT = new mul(l.intValue(), e1, e2); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
+                Expression e1 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
+                Expression e2 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; RESULT = new mul(l.intValue(), e1, e2); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(10/*expr_aux*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -461,10 +461,10 @@ class CUP$ASTParser$actions {
           case 30: // expr_aux ::= LINENO SUB expr expr 
             {
               Expression RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
-		Expression e1 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
-		Expression e2 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; RESULT = new sub(l.intValue(), e1, e2); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
+                Expression e1 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
+                Expression e2 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; RESULT = new sub(l.intValue(), e1, e2); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(10/*expr_aux*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -473,10 +473,10 @@ class CUP$ASTParser$actions {
           case 29: // expr_aux ::= LINENO PLUS expr expr 
             {
               Expression RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
-		Expression e1 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
-		Expression e2 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; RESULT = new plus(l.intValue(), e1, e2); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
+                Expression e1 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
+                Expression e2 = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; RESULT = new plus(l.intValue(), e1, e2); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(10/*expr_aux*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -485,9 +485,9 @@ class CUP$ASTParser$actions {
           case 28: // expr_aux ::= LINENO ISVOID expr 
             {
               Expression RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
-		Expression e = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; RESULT = new isvoid(l.intValue(), e); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
+                Expression e = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; RESULT = new isvoid(l.intValue(), e); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(10/*expr_aux*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -496,9 +496,9 @@ class CUP$ASTParser$actions {
           case 27: // expr_aux ::= LINENO NEW ID 
             {
               Expression RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
-		AbstractSymbol t = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; RESULT = new new_(l.intValue(), t); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
+                AbstractSymbol t = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; RESULT = new new_(l.intValue(), t); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(10/*expr_aux*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -507,10 +507,10 @@ class CUP$ASTParser$actions {
           case 26: // expr_aux ::= LINENO TYPCASE expr case_list 
             {
               Expression RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
-		Expression e = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
-		Cases cl = (Cases)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; RESULT = new typcase(l.intValue(), e, cl); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
+                Expression e = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
+                Cases cl = (Cases)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; RESULT = new typcase(l.intValue(), e, cl); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(10/*expr_aux*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -519,12 +519,12 @@ class CUP$ASTParser$actions {
           case 25: // expr_aux ::= LINENO LET ID ID expr expr 
             {
               Expression RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-5)).value;
-		AbstractSymbol n = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
-		AbstractSymbol t = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
-		Expression i = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
-		Expression b = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; RESULT = new let(l.intValue(), n, t, i, b); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-5)).value;
+                AbstractSymbol n = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
+                AbstractSymbol t = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
+                Expression i = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
+                Expression b = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; RESULT = new let(l.intValue(), n, t, i, b); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(10/*expr_aux*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -533,9 +533,9 @@ class CUP$ASTParser$actions {
           case 24: // expr_aux ::= LINENO BLOCK expr_list 
             {
               Expression RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
-		Expressions el = (Expressions)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; RESULT = new block(l.intValue(), el); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
+                Expressions el = (Expressions)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; RESULT = new block(l.intValue(), el); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(10/*expr_aux*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -544,10 +544,10 @@ class CUP$ASTParser$actions {
           case 23: // expr_aux ::= LINENO LOOP expr expr 
             {
               Expression RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
-		Expression p = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
-		Expression b = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; RESULT = new loop(l.intValue(), p, b); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
+                Expression p = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
+                Expression b = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; RESULT = new loop(l.intValue(), p, b); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(10/*expr_aux*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -556,11 +556,11 @@ class CUP$ASTParser$actions {
           case 22: // expr_aux ::= LINENO COND expr expr expr 
             {
               Expression RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-4)).value;
-		Expression p = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
-		Expression t = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
-		Expression e = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; RESULT = new cond(l.intValue(), p, t, e); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-4)).value;
+                Expression p = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
+                Expression t = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
+                Expression e = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; RESULT = new cond(l.intValue(), p, t, e); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(10/*expr_aux*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -569,11 +569,11 @@ class CUP$ASTParser$actions {
           case 21: // expr_aux ::= LINENO DISPATCH expr ID actuals 
             {
               Expression RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-4)).value;
-		Expression e = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
-		AbstractSymbol n = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
-		Expressions a = (Expressions)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; RESULT = new dispatch(l.intValue(), e, n, a); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-4)).value;
+                Expression e = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
+                AbstractSymbol n = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
+                Expressions a = (Expressions)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; RESULT = new dispatch(l.intValue(), e, n, a); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(10/*expr_aux*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -582,12 +582,12 @@ class CUP$ASTParser$actions {
           case 20: // expr_aux ::= LINENO STATIC_DISPATCH expr ID ID actuals 
             {
               Expression RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-5)).value;
-		Expression e = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
-		AbstractSymbol t = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
-		AbstractSymbol n = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
-		Expressions a = (Expressions)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; RESULT = new static_dispatch(l.intValue(), e, t, n, a); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-5)).value;
+                Expression e = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
+                AbstractSymbol t = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
+                AbstractSymbol n = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
+                Expressions a = (Expressions)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; RESULT = new static_dispatch(l.intValue(), e, t, n, a); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(10/*expr_aux*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -596,10 +596,10 @@ class CUP$ASTParser$actions {
           case 19: // expr_aux ::= LINENO ASSIGN ID expr 
             {
               Expression RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
-		AbstractSymbol n = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
-		Expression e = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; RESULT = new assign(l.intValue(), n,e); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
+                AbstractSymbol n = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
+                Expression e = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; RESULT = new assign(l.intValue(), n,e); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(10/*expr_aux*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -608,8 +608,8 @@ class CUP$ASTParser$actions {
           case 18: // expr ::= expr_aux COLON NO_TYPE 
             {
               Expression RESULT = null;
-		Expression e = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
-		 RESULT = e; 
+                Expression e = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
+                 RESULT = e; 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(11/*expr*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -618,9 +618,9 @@ class CUP$ASTParser$actions {
           case 17: // expr ::= expr_aux COLON ID 
             {
               Expression RESULT = null;
-		Expression e = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
-		AbstractSymbol t = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 RESULT = e; e.set_type(t); 
+                Expression e = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
+                AbstractSymbol t = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 RESULT = e; e.set_type(t); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(11/*expr*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -629,10 +629,10 @@ class CUP$ASTParser$actions {
           case 16: // formal ::= LINENO FORMAL ID ID 
             {
               Formal RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
-		AbstractSymbol n = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
-		AbstractSymbol t = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; RESULT = new formal(l.intValue(), n, t); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
+                AbstractSymbol n = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
+                AbstractSymbol t = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; RESULT = new formal(l.intValue(), n, t); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(9/*formal*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -641,9 +641,9 @@ class CUP$ASTParser$actions {
           case 15: // formal_list ::= formal_list formal 
             {
               Formals RESULT = null;
-		Formals fl = (Formals)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
-		Formal f = (Formal)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 RESULT = fl.appendElement(f); 
+                Formals fl = (Formals)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
+                Formal f = (Formal)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 RESULT = fl.appendElement(f); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(8/*formal_list*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -652,8 +652,8 @@ class CUP$ASTParser$actions {
           case 14: // formal_list ::= formal 
             {
               Formals RESULT = null;
-		Formal f = (Formal)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 RESULT = (new Formals(curr_lineno.intValue())).appendElement(f); 
+                Formal f = (Formal)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 RESULT = (new Formals(curr_lineno.intValue())).appendElement(f); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(8/*formal_list*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -662,8 +662,8 @@ class CUP$ASTParser$actions {
           case 13: // formals ::= formal_list 
             {
               Formals RESULT = null;
-		Formals fl = (Formals)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 RESULT = fl; 
+                Formals fl = (Formals)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 RESULT = fl; 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(7/*formals*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -672,7 +672,7 @@ class CUP$ASTParser$actions {
           case 12: // formals ::= 
             {
               Formals RESULT = null;
-		 RESULT = new Formals(curr_lineno.intValue()); 
+                 RESULT = new Formals(curr_lineno.intValue()); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(7/*formals*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -681,11 +681,11 @@ class CUP$ASTParser$actions {
           case 11: // feature ::= LINENO ATTR ID ID expr 
             {
               Feature RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-4)).value;
-		AbstractSymbol n = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
-		AbstractSymbol t = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
-		Expression i = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; RESULT = new attr(l.intValue(), n, t, i); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-4)).value;
+                AbstractSymbol n = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
+                AbstractSymbol t = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
+                Expression i = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; RESULT = new attr(l.intValue(), n, t, i); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(6/*feature*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -694,12 +694,12 @@ class CUP$ASTParser$actions {
           case 10: // feature ::= LINENO METHOD ID formals ID expr 
             {
               Feature RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-5)).value;
-		AbstractSymbol n = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
-		Formals f = (Formals)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
-		AbstractSymbol t = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
-		Expression b = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; RESULT = new method(l.intValue(), n,f,t,b); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-5)).value;
+                AbstractSymbol n = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
+                Formals f = (Formals)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
+                AbstractSymbol t = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
+                Expression b = (Expression)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; RESULT = new method(l.intValue(), n,f,t,b); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(6/*feature*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -708,9 +708,9 @@ class CUP$ASTParser$actions {
           case 9: // feature_list ::= feature_list feature 
             {
               Features RESULT = null;
-		Features fl = (Features)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
-		Feature f = (Feature)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 RESULT = fl.appendElement(f); 
+                Features fl = (Features)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
+                Feature f = (Feature)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 RESULT = fl.appendElement(f); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(4/*feature_list*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -719,8 +719,8 @@ class CUP$ASTParser$actions {
           case 8: // feature_list ::= feature 
             {
               Features RESULT = null;
-		Feature f = (Feature)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 RESULT = (new Features(curr_lineno.intValue())).appendElement(f); 
+                Feature f = (Feature)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 RESULT = (new Features(curr_lineno.intValue())).appendElement(f); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(4/*feature_list*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -729,8 +729,8 @@ class CUP$ASTParser$actions {
           case 7: // optional_feature_list ::= feature_list 
             {
               Features RESULT = null;
-		Features fl = (Features)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 RESULT = fl; 
+                Features fl = (Features)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 RESULT = fl; 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(5/*optional_feature_list*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -739,7 +739,7 @@ class CUP$ASTParser$actions {
           case 6: // optional_feature_list ::= 
             {
               Features RESULT = null;
-		 RESULT = new Features(curr_lineno.intValue()); 
+                 RESULT = new Features(curr_lineno.intValue()); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(5/*optional_feature_list*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -748,12 +748,12 @@ class CUP$ASTParser$actions {
           case 5: // class ::= LINENO CLASS ID ID STR_CONST LPAREN optional_feature_list RPAREN 
             {
               class_ RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-7)).value;
-		AbstractSymbol n = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-5)).value;
-		AbstractSymbol p = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-4)).value;
-		AbstractSymbol file = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
-		Features f = (Features)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
-		 curr_lineno = l; RESULT = new class_(l.intValue(), n, p, f, file); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-7)).value;
+                AbstractSymbol n = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-5)).value;
+                AbstractSymbol p = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-4)).value;
+                AbstractSymbol file = (AbstractSymbol)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-3)).value;
+                Features f = (Features)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
+                 curr_lineno = l; RESULT = new class_(l.intValue(), n, p, f, file); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(3/*class*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -762,9 +762,9 @@ class CUP$ASTParser$actions {
           case 4: // class_list ::= class_list class 
             {
               Classes RESULT = null;
-		Classes cl = (Classes)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
-		class_ c = (class_)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 RESULT = cl.appendElement(c); 
+                Classes cl = (Classes)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
+                class_ c = (class_)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 RESULT = cl.appendElement(c); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(2/*class_list*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -773,8 +773,8 @@ class CUP$ASTParser$actions {
           case 3: // class_list ::= class 
             {
               Classes RESULT = null;
-		class_ c = (class_)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 RESULT = (new Classes(curr_lineno.intValue())).appendElement(c); 
+                class_ c = (class_)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 RESULT = (new Classes(curr_lineno.intValue())).appendElement(c); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(2/*class_list*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -783,7 +783,7 @@ class CUP$ASTParser$actions {
           case 2: // program ::= 
             {
               program RESULT = null;
-		 RESULT = null; System.exit(1); 
+                 RESULT = null; System.exit(1); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(1/*program*/, RESULT);
             }
           return CUP$ASTParser$result;
@@ -792,8 +792,8 @@ class CUP$ASTParser$actions {
           case 1: // $START ::= program EOF 
             {
               Object RESULT = null;
-		program start_val = (program)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
-		RESULT = start_val;
+                program start_val = (program)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-1)).value;
+                RESULT = start_val;
               CUP$ASTParser$result = new java_cup.runtime.Symbol(0/*$START*/, RESULT);
             }
           /* ACCEPT */
@@ -804,9 +804,9 @@ class CUP$ASTParser$actions {
           case 0: // program ::= LINENO PROGRAM class_list 
             {
               program RESULT = null;
-		Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
-		Classes cl = (Classes)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
-		 curr_lineno = l; RESULT = new program(l.intValue(), cl); 
+                Integer l = (Integer)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-2)).value;
+                Classes cl = (Classes)((java_cup.runtime.Symbol) CUP$ASTParser$stack.elementAt(CUP$ASTParser$top-0)).value;
+                 curr_lineno = l; RESULT = new program(l.intValue(), cl); 
               CUP$ASTParser$result = new java_cup.runtime.Symbol(1/*program*/, RESULT);
             }
           return CUP$ASTParser$result;
