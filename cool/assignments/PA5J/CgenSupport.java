@@ -143,6 +143,27 @@ class CgenSupport {
                   + "(" + dest_reg + ")");
     }
 
+    static void emitUnbox(String reg1, String reg2, PrintStream s) {
+        emitLoad(reg1, 3, reg1, s);
+        emitLoad(reg2, 3, reg2, s);
+    }
+    
+    static void emitBoxInt(String reg, int offset, PrintStream s) {
+        emitStore(reg, offset, "$fp", s);
+        emitLoadAddress("$a0", "Int_protObj", s);
+        emitJal("Object.copy", s);
+        emitLoad("$t1", offset, "$fp", s);
+        emitStore("$t1", 3, "$a0", s);
+    }
+    
+    static void emitBoxBool(String reg, int offset, PrintStream s) {
+        emitStore(reg, offset, "$fp", s);
+        emitLoadAddress("$a0", "Bool_protObj", s);
+        emitJal("Object.copy", s);
+        emitLoad("$t1", offset, "$fp", s);
+        emitStore("$t1", 3, "$a0", s);
+    }
+
     /** Emits the LI instruction.
      * @param dest_reg the destination register
      * @param val the integer value

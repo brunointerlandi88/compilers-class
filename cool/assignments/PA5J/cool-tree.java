@@ -12,6 +12,57 @@ import java.io.PrintStream;
 import java.util.*;
 
 
+class Environment {
+    private CgenClassTable classTable;
+    private AbstractSymbol currentClass;
+    private AbstractSymbol methodName;
+    private List<AbstractSymbol> formals;
+    private int temporaries;
+    private int tempOffset;
+    private int condLabel;
+    
+    public Environment(CgenClassTable classTable, AbstractSymbol currentClass,
+                       AbstractSymbol methodName, List<AbstractSymbol> formals,
+                       int temporaries, int tempOffset) {
+        
+        this.classTable = classTable;
+        this.currentClass = currentClass;
+        this.methodName   = methodName;
+        this.formals      = formals;
+        this.temporaries  = temporaries;
+        this.tempOffset   = tempOffset;
+        this.condLabel    = 0;
+    }
+    
+    public int methodOffset(AbstractSymbol type, AbstractSymbol methodName) {
+        if (type.equals(TreeConstants.SELF_TYPE)) {
+            type = currentClass;
+        }
+        return classTable.methodOffset(type, methodName);
+    }
+    
+    public void reserveTemp() {
+        tempOffset++;
+    }
+    
+    public void releaseTemp() {
+        tempOffset--;
+    }
+    
+    public int tempOffset() {
+        return tempOffset;
+    }
+    
+    public List<String> condLabels() {
+        List<String> labels = new Vector<String>();
+        labels.add(currentClass + "." + methodName + ".if_true" + condLabel);
+        labels.add(currentClass + "." + methodName + ".if_false" + condLabel);
+        labels.add(currentClass + "." + methodName + ".end_if" + condLabel);
+        condLabel++;
+        return labels;
+    }
+}
+
 /** Defines simple phylum Program */
 abstract class Program extends TreeNode {
     protected Program(int lineNumber) {
@@ -155,7 +206,7 @@ abstract class Expression extends TreeNode {
             { out.println(Utilities.pad(n) + ": _no_type"); }
     }
     
-    public void code(PrintStream s, AbstractSymbol className, CgenClassTable classTable, List<AbstractSymbol> formals, int temps) {
+    public void code(PrintStream s, Environment env) {
     }
     
     public int calculateTemps() {
@@ -417,7 +468,8 @@ class method extends Feature {
         CgenSupport.emitAddiu("$fp", "$sp", 4, s);
         CgenSupport.emitMove("$s0", "$a0", s);
         
-        expr.code(s, className, classTable, getFormals(), temps);
+        Environment env = new Environment(classTable, className, name, getFormals(), temps, 0);
+        expr.code(s, env);
         
         CgenSupport.emitLoad("$fp", temps + 3, "$sp", s);
         CgenSupport.emitLoad("$ra", temps + 2, "$sp", s);
@@ -603,7 +655,7 @@ class assign extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, AbstractSymbol className, CgenClassTable classTable, List<AbstractSymbol> formals, int temps) {
+    public void code(PrintStream s, Environment env) {
     }
 
 
@@ -663,7 +715,7 @@ class static_dispatch extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, AbstractSymbol className, CgenClassTable classTable, List<AbstractSymbol> formals, int temps) {
+    public void code(PrintStream s, Environment env) {
     }
 
 
@@ -718,22 +770,18 @@ class dispatch extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, AbstractSymbol className, CgenClassTable classTable, List<AbstractSymbol> formals, int temps) {
+    public void code(PrintStream s, Environment env) {
         Expression exp;
         for (Enumeration e = actual.getElements(); e.hasMoreElements(); ) {
             exp = (Expression)e.nextElement();
-            exp.code(s, className, classTable, formals, temps);
+            exp.code(s, env);
             CgenSupport.emitPush("$a0", s);
         }
         
-        expr.code(s, className, classTable, formals, temps);
+        expr.code(s, env);
         CgenSupport.emitLoad("$t1", 2, "$a0", s);
         
-        AbstractSymbol recv = expr.get_type();
-        if (recv.equals(TreeConstants.SELF_TYPE)) {
-            recv = className;
-        }
-        int offset = classTable.methodOffset(recv, name);
+        int offset = env.methodOffset(expr.get_type(), name);
         
         CgenSupport.emitLoad("$t1", offset, "$t1", s);
         CgenSupport.emitJalr("$t1", s);
@@ -798,7 +846,29 @@ class cond extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, AbstractSymbol className, CgenClassTable classTable, List<AbstractSymbol> formals, int temps) {
+    public void code(PrintStream s, Environment env) {
+        List<String> labels = env.condLabels();
+        
+        pred.code(s, env);
+        CgenSupport.emitLoad("$t1", 3, "$a0", s);
+        s.println("\tbeq\t$t1 $zero " + labels.get(1));
+        
+        s.println(labels.get(0) + ":");
+        then_exp.code(s, env);
+        s.println("\tb\t" + labels.get(2));
+        
+        s.println(labels.get(1) + ":");
+        else_exp.code(s, env);
+        
+        s.println(labels.get(2) + ":");
+    }
+    
+    public int calculateTemps() {
+        List<Integer> temps = new Vector<Integer>();
+        temps.add(pred.calculateTemps());
+        temps.add(then_exp.calculateTemps());
+        temps.add(else_exp.calculateTemps());
+        return Collections.max(temps);
     }
 
 
@@ -844,7 +914,7 @@ class loop extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, AbstractSymbol className, CgenClassTable classTable, List<AbstractSymbol> formals, int temps) {
+    public void code(PrintStream s, Environment env) {
     }
 
 
@@ -892,7 +962,7 @@ class typcase extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, AbstractSymbol className, CgenClassTable classTable, List<AbstractSymbol> formals, int temps) {
+    public void code(PrintStream s, Environment env) {
     }
 
 
@@ -935,11 +1005,11 @@ class block extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, AbstractSymbol className, CgenClassTable classTable, List<AbstractSymbol> formals, int temps) {
+    public void code(PrintStream s, Environment env) {
         Expression expr;
         for (Enumeration e = body.getElements(); e.hasMoreElements(); ) {
             expr = (Expression)e.nextElement();
-            expr.code(s, className, classTable, formals, temps);
+            expr.code(s, env);
         }
     }
     
@@ -1006,7 +1076,7 @@ class let extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, AbstractSymbol className, CgenClassTable classTable, List<AbstractSymbol> formals, int temps) {
+    public void code(PrintStream s, Environment env) {
     }
 
 
@@ -1052,7 +1122,27 @@ class plus extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, AbstractSymbol className, CgenClassTable classTable, List<AbstractSymbol> formals, int temps) {
+    public void code(PrintStream s, Environment env) {
+        int offset = env.tempOffset();
+        
+        e1.code(s, env);
+        CgenSupport.emitStore("$a0", offset, "$fp", s);
+        
+        env.reserveTemp();
+        e2.code(s, env);
+        env.releaseTemp();
+        CgenSupport.emitLoad("$t1", offset, "$fp", s);
+        
+        CgenSupport.emitUnbox("$t1", "$a0", s);
+        CgenSupport.emitAdd("$a0", "$t1", "$a0", s);
+        CgenSupport.emitBoxInt("$a0", offset, s);
+    }
+    
+    public int calculateTemps() {
+        List<Integer> temps = new Vector<Integer>();
+        temps.add(e1.calculateTemps());
+        temps.add(1 + e2.calculateTemps());
+        return Collections.max(temps);
     }
 
 
@@ -1098,7 +1188,27 @@ class sub extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, AbstractSymbol className, CgenClassTable classTable, List<AbstractSymbol> formals, int temps) {
+    public void code(PrintStream s, Environment env) {
+        int offset = env.tempOffset();
+        
+        e1.code(s, env);
+        CgenSupport.emitStore("$a0", offset, "$fp", s);
+        
+        env.reserveTemp();
+        e2.code(s, env);
+        env.releaseTemp();
+        CgenSupport.emitLoad("$t1", offset, "$fp", s);
+        
+        CgenSupport.emitUnbox("$t1", "$a0", s);
+        CgenSupport.emitSub("$a0", "$t1", "$a0", s);
+        CgenSupport.emitBoxInt("$a0", offset, s);
+    }
+    
+    public int calculateTemps() {
+        List<Integer> temps = new Vector<Integer>();
+        temps.add(e1.calculateTemps());
+        temps.add(1 + e2.calculateTemps());
+        return Collections.max(temps);
     }
 
 
@@ -1144,7 +1254,27 @@ class mul extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, AbstractSymbol className, CgenClassTable classTable, List<AbstractSymbol> formals, int temps) {
+    public void code(PrintStream s, Environment env) {
+        int offset = env.tempOffset();
+        
+        e1.code(s, env);
+        CgenSupport.emitStore("$a0", offset, "$fp", s);
+        
+        env.reserveTemp();
+        e2.code(s, env);
+        env.releaseTemp();
+        CgenSupport.emitLoad("$t1", offset, "$fp", s);
+        
+        CgenSupport.emitUnbox("$t1", "$a0", s);
+        CgenSupport.emitMul("$a0", "$t1", "$a0", s);
+        CgenSupport.emitBoxInt("$a0", offset, s);
+    }
+    
+    public int calculateTemps() {
+        List<Integer> temps = new Vector<Integer>();
+        temps.add(e1.calculateTemps());
+        temps.add(1 + e2.calculateTemps());
+        return Collections.max(temps);
     }
 
 
@@ -1190,7 +1320,27 @@ class divide extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, AbstractSymbol className, CgenClassTable classTable, List<AbstractSymbol> formals, int temps) {
+    public void code(PrintStream s, Environment env) {
+        int offset = env.tempOffset();
+        
+        e1.code(s, env);
+        CgenSupport.emitStore("$a0", offset, "$fp", s);
+        
+        env.reserveTemp();
+        e2.code(s, env);
+        env.releaseTemp();
+        CgenSupport.emitLoad("$t1", offset, "$fp", s);
+        
+        CgenSupport.emitUnbox("$t1", "$a0", s);
+        CgenSupport.emitDiv("$a0", "$t1", "$a0", s);
+        CgenSupport.emitBoxInt("$a0", offset, s);
+    }
+    
+    public int calculateTemps() {
+        List<Integer> temps = new Vector<Integer>();
+        temps.add(e1.calculateTemps());
+        temps.add(1 + e2.calculateTemps());
+        return Collections.max(temps);
     }
 
 
@@ -1231,7 +1381,7 @@ class neg extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, AbstractSymbol className, CgenClassTable classTable, List<AbstractSymbol> formals, int temps) {
+    public void code(PrintStream s, Environment env) {
     }
 
 
@@ -1277,7 +1427,27 @@ class lt extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, AbstractSymbol className, CgenClassTable classTable, List<AbstractSymbol> formals, int temps) {
+    public void code(PrintStream s, Environment env) {
+        int offset = env.tempOffset();
+        
+        e1.code(s, env);
+        CgenSupport.emitStore("$a0", offset, "$fp", s);
+        
+        env.reserveTemp();
+        e2.code(s, env);
+        env.releaseTemp();
+        CgenSupport.emitLoad("$t1", offset, "$fp", s);
+        
+        CgenSupport.emitUnbox("$t1", "$a0", s);
+        s.println("\tslt\t$a0 $t1 $a0");
+        CgenSupport.emitBoxBool("$a0", offset, s);
+    }
+    
+    public int calculateTemps() {
+        List<Integer> temps = new Vector<Integer>();
+        temps.add(e1.calculateTemps());
+        temps.add(1 + e2.calculateTemps());
+        return Collections.max(temps);
     }
 
 
@@ -1323,7 +1493,27 @@ class eq extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, AbstractSymbol className, CgenClassTable classTable, List<AbstractSymbol> formals, int temps) {
+    public void code(PrintStream s, Environment env) {
+        int offset = env.tempOffset();
+        
+        e1.code(s, env);
+        CgenSupport.emitStore("$a0", offset, "$fp", s);
+        
+        env.reserveTemp();
+        e2.code(s, env);
+        env.releaseTemp();
+        CgenSupport.emitLoad("$t1", offset, "$fp", s);
+        
+        CgenSupport.emitUnbox("$t1", "$a0", s);
+        s.println("\tseq\t$a0 $t1 $a0");
+        CgenSupport.emitBoxBool("$a0", offset, s);
+    }
+    
+    public int calculateTemps() {
+        List<Integer> temps = new Vector<Integer>();
+        temps.add(e1.calculateTemps());
+        temps.add(1 + e2.calculateTemps());
+        return Collections.max(temps);
     }
 
 
@@ -1369,7 +1559,27 @@ class leq extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, AbstractSymbol className, CgenClassTable classTable, List<AbstractSymbol> formals, int temps) {
+    public void code(PrintStream s, Environment env) {
+        int offset = env.tempOffset();
+        
+        e1.code(s, env);
+        CgenSupport.emitStore("$a0", offset, "$fp", s);
+        
+        env.reserveTemp();
+        e2.code(s, env);
+        env.releaseTemp();
+        CgenSupport.emitLoad("$t1", offset, "$fp", s);
+        
+        CgenSupport.emitUnbox("$t1", "$a0", s);
+        s.println("\tsge\t$a0 $a0 $t1");
+        CgenSupport.emitBoxBool("$a0", offset, s);
+    }
+    
+    public int calculateTemps() {
+        List<Integer> temps = new Vector<Integer>();
+        temps.add(e1.calculateTemps());
+        temps.add(1 + e2.calculateTemps());
+        return Collections.max(temps);
     }
 
 
@@ -1410,7 +1620,7 @@ class comp extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, AbstractSymbol className, CgenClassTable classTable, List<AbstractSymbol> formals, int temps) {
+    public void code(PrintStream s, Environment env) {
     }
 
 
@@ -1450,9 +1660,13 @@ class int_const extends Expression {
       * to you as an example of code generation.
       * @param s the output stream 
       * */
-    public void code(PrintStream s, AbstractSymbol className, CgenClassTable classTable, List<AbstractSymbol> formals, int temps) {
+    public void code(PrintStream s, Environment env) {
         CgenSupport.emitLoadInt(CgenSupport.ACC,
                                 (IntSymbol)AbstractTable.inttable.lookup(token.getString()), s);
+    }
+    
+    public int calculateTemps() {
+        return 0;
     }
 
 }
@@ -1491,7 +1705,7 @@ class bool_const extends Expression {
       * to you as an example of code generation.
       * @param s the output stream 
       * */
-    public void code(PrintStream s, AbstractSymbol className, CgenClassTable classTable, List<AbstractSymbol> formals, int temps) {
+    public void code(PrintStream s, Environment env) {
         CgenSupport.emitLoadBool(CgenSupport.ACC, new BoolConst(val), s);
     }
 
@@ -1533,7 +1747,7 @@ class string_const extends Expression {
       * to you as an example of code generation.
       * @param s the output stream 
       * */
-    public void code(PrintStream s, AbstractSymbol className, CgenClassTable classTable, List<AbstractSymbol> formals, int temps) {
+    public void code(PrintStream s, Environment env) {
         CgenSupport.emitLoadString(CgenSupport.ACC,
                                    (StringSymbol)AbstractTable.stringtable.lookup(token.getString()), s);
     }
@@ -1579,7 +1793,7 @@ class new_ extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, AbstractSymbol className, CgenClassTable classTable, List<AbstractSymbol> formals, int temps) {
+    public void code(PrintStream s, Environment env) {
     }
 
 
@@ -1620,7 +1834,7 @@ class isvoid extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, AbstractSymbol className, CgenClassTable classTable, List<AbstractSymbol> formals, int temps) {
+    public void code(PrintStream s, Environment env) {
     }
 
 
@@ -1656,7 +1870,7 @@ class no_expr extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, AbstractSymbol className, CgenClassTable classTable, List<AbstractSymbol> formals, int temps) {
+    public void code(PrintStream s, Environment env) {
     }
 
 
@@ -1697,7 +1911,7 @@ class object extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, AbstractSymbol className, CgenClassTable classTable, List<AbstractSymbol> formals, int temps) {
+    public void code(PrintStream s, Environment env) {
         if (name.equals(TreeConstants.self)) {
             CgenSupport.emitMove("$a0", "$s0", s);
         }
