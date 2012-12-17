@@ -40,8 +40,8 @@ class CgenNode extends class_ {
     /** Does this node correspond to a basic class? */
     private int basic_status;
     
-    private List<AbstractSymbol> attrIndex, methIndex;
-    private Set<AbstractSymbol>  attrs, methods;
+    protected List<AbstractSymbol> attributes, methods;
+    private Set<AbstractSymbol> _attributes, _methods;
     private int id;
 
     /** Constructs a new CgenNode to represent class "c".
@@ -104,81 +104,63 @@ class CgenNode extends class_ {
         return basic_status == Basic; 
     }
     
-    void buildLayoutIndex(List<AbstractSymbol> attributes, List<AbstractSymbol> methods) {
+    void buildLayoutIndex() {
+        if (parent != null) parent.buildLayoutIndex();
+        if (methods != null) return;
+        
+        attributes = new Vector<AbstractSymbol>();
+        methods    = new Vector<AbstractSymbol>();
+        
+        _attributes = new HashSet<AbstractSymbol>();
+        _methods    = new HashSet<AbstractSymbol>();
+        
         if (parent != null) {
-            parent.buildLayoutIndex(attributes, methods);
+            for (AbstractSymbol a : parent.attributes) {
+                attributes.add(a);
+            }
+            for (AbstractSymbol m : parent.methods) {
+                methods.add(m);
+            }
         }
         
         Feature feature;
         List<AbstractSymbol> list;
+        Set<AbstractSymbol> _set;
         AbstractSymbol name;
         
         for (Enumeration e = features.getElements(); e.hasMoreElements(); ) {
             feature = (Feature)e.nextElement();
-            list = null;
-            name = null;
+            list    = null;
+            _set    = null;
+            name    = null;
             
             if (feature instanceof method) {
                 list = methods;
+                _set = _methods;
                 name = ((method)feature).name;
+                ((method)feature).calculateTemps();
             } else if (feature instanceof attr) {
                 list = attributes;
+                _set = _attributes;
                 name = ((attr)feature).name;
             }
             if (list != null && list.indexOf(name) < 0) {
                 list.add(name);
             }
-        }
-    }
-    
-    void buildLayoutIndex() {
-        attrs   = new HashSet<AbstractSymbol>();
-        methods = new HashSet<AbstractSymbol>();
-        
-        Feature feature;
-        Set<AbstractSymbol> set;
-        AbstractSymbol name;
-        
-        for (Enumeration e = features.getElements(); e.hasMoreElements(); ) {
-            feature = (Feature)e.nextElement();
-            set  = null;
-            name = null;
-            
-            if (feature instanceof method) {
-                set  = methods;
-                name = ((method)feature).name;
-            } else if (feature instanceof attr) {
-                set  = attrs;
-                name = ((attr)feature).name;
-            }
-            if (set != null) {
-                set.add(name);
-            }
-        }
-        
-        attrIndex = new Vector<AbstractSymbol>();
-        methIndex = new Vector<AbstractSymbol>();
-        
-        buildLayoutIndex(attrIndex, methIndex);
-        
-        for (Enumeration e = features.getElements(); e.hasMoreElements(); ) {
-            feature = (Feature)e.nextElement();
-            if (feature instanceof method) {
-                ((method)feature).calculateTemps();
-            }
+            if (_set != null) _set.add(name);
         }
     }
     
     void codeDispatchTable(PrintStream s) {
         s.println(name + "_dispTab:");
         
-        for (AbstractSymbol method : methIndex) {
+        for (AbstractSymbol method : methods) {
             s.println(CgenSupport.WORD + classFor(method) + "." + method);
         }
     }
     
     AbstractSymbol classFor(AbstractSymbol method) {
-        if (methods.contains(method)) {
+        if (_methods.contains(method)) {
             return name;
         } else if (parent != null) {
             return parent.classFor(method);
@@ -188,13 +170,13 @@ class CgenNode extends class_ {
     }
     
     int methodOffset(AbstractSymbol methodName) {
-        return methIndex.indexOf(methodName);
+        return methods.indexOf(methodName);
     }
     
     void codeProtoObject(PrintStream s, IntTable intTable) {
         s.println(name + "_protObj:");
         s.println(CgenSupport.WORD + id);
-        s.println(CgenSupport.WORD + (attrIndex.size() + 3));
+        s.println(CgenSupport.WORD + (attributes.size() + 3));
         s.println(CgenSupport.WORD + name + "_dispTab");
         
         IntSymbol isym;
@@ -205,7 +187,7 @@ class CgenNode extends class_ {
             s.println(CgenSupport.WORD + "0");
         }
         if (!name.equals(TreeConstants.Str)) {
-            for (int i = 0; i < attrIndex.size(); i++) {
+            for (int i = 0; i < attributes.size(); i++) {
                 s.println(CgenSupport.WORD + "0");
             }
         }
