@@ -17,18 +17,20 @@ class Environment {
     private AbstractSymbol currentClass;
     private AbstractSymbol methodName;
     private List<AbstractSymbol> formals;
+    private int headers;
     private int temporaries;
     private int tempOffset;
     private int condLabel;
     
     public Environment(CgenClassTable classTable, AbstractSymbol currentClass,
                        AbstractSymbol methodName, List<AbstractSymbol> formals,
-                       int temporaries, int tempOffset) {
+                       int headers, int temporaries, int tempOffset) {
         
-        this.classTable = classTable;
+        this.classTable   = classTable;
         this.currentClass = currentClass;
         this.methodName   = methodName;
         this.formals      = formals;
+        this.headers      = headers;
         this.temporaries  = temporaries;
         this.tempOffset   = tempOffset;
         this.condLabel    = 0;
@@ -41,12 +43,18 @@ class Environment {
         return classTable.methodOffset(type, methodName);
     }
     
-    public void reserveTemp() {
+    public int variableOffset(AbstractSymbol name) {
+        return headers + temporaries + formals.size() - formals.indexOf(name) - 1;
+    }
+    
+    public void pushTemp(String reg, PrintStream s) {
+        CgenSupport.emitStore(reg, tempOffset, "$fp", s);
         tempOffset++;
     }
     
-    public void releaseTemp() {
+    public void popTemp(String reg, PrintStream s) {
         tempOffset--;
+        CgenSupport.emitLoad(reg, tempOffset, "$fp", s);
     }
     
     public int tempOffset() {
@@ -468,7 +476,7 @@ class method extends Feature {
         CgenSupport.emitAddiu("$fp", "$sp", 4, s);
         CgenSupport.emitMove("$s0", "$a0", s);
         
-        Environment env = new Environment(classTable, className, name, getFormals(), temps, 0);
+        Environment env = new Environment(classTable, className, name, getFormals(), 3, temps, 0);
         expr.code(s, env);
         
         CgenSupport.emitLoad("$fp", temps + 3, "$sp", s);
@@ -1123,19 +1131,14 @@ class plus extends Expression {
       * @param s the output stream 
       * */
     public void code(PrintStream s, Environment env) {
-        int offset = env.tempOffset();
-        
         e1.code(s, env);
-        CgenSupport.emitStore("$a0", offset, "$fp", s);
-        
-        env.reserveTemp();
+        env.pushTemp("$a0", s);
         e2.code(s, env);
-        env.releaseTemp();
-        CgenSupport.emitLoad("$t1", offset, "$fp", s);
+        env.popTemp("$t1", s);
         
         CgenSupport.emitUnbox("$t1", "$a0", s);
         CgenSupport.emitAdd("$a0", "$t1", "$a0", s);
-        CgenSupport.emitBoxInt("$a0", offset, s);
+        CgenSupport.emitBoxInt("$a0", env.tempOffset(), s);
     }
     
     public int calculateTemps() {
@@ -1189,19 +1192,14 @@ class sub extends Expression {
       * @param s the output stream 
       * */
     public void code(PrintStream s, Environment env) {
-        int offset = env.tempOffset();
-        
         e1.code(s, env);
-        CgenSupport.emitStore("$a0", offset, "$fp", s);
-        
-        env.reserveTemp();
+        env.pushTemp("$a0", s);
         e2.code(s, env);
-        env.releaseTemp();
-        CgenSupport.emitLoad("$t1", offset, "$fp", s);
+        env.popTemp("$t1", s);
         
         CgenSupport.emitUnbox("$t1", "$a0", s);
         CgenSupport.emitSub("$a0", "$t1", "$a0", s);
-        CgenSupport.emitBoxInt("$a0", offset, s);
+        CgenSupport.emitBoxInt("$a0", env.tempOffset(), s);
     }
     
     public int calculateTemps() {
@@ -1255,19 +1253,14 @@ class mul extends Expression {
       * @param s the output stream 
       * */
     public void code(PrintStream s, Environment env) {
-        int offset = env.tempOffset();
-        
         e1.code(s, env);
-        CgenSupport.emitStore("$a0", offset, "$fp", s);
-        
-        env.reserveTemp();
+        env.pushTemp("$a0", s);
         e2.code(s, env);
-        env.releaseTemp();
-        CgenSupport.emitLoad("$t1", offset, "$fp", s);
+        env.popTemp("$t1", s);
         
         CgenSupport.emitUnbox("$t1", "$a0", s);
         CgenSupport.emitMul("$a0", "$t1", "$a0", s);
-        CgenSupport.emitBoxInt("$a0", offset, s);
+        CgenSupport.emitBoxInt("$a0", env.tempOffset(), s);
     }
     
     public int calculateTemps() {
@@ -1321,19 +1314,14 @@ class divide extends Expression {
       * @param s the output stream 
       * */
     public void code(PrintStream s, Environment env) {
-        int offset = env.tempOffset();
-        
         e1.code(s, env);
-        CgenSupport.emitStore("$a0", offset, "$fp", s);
-        
-        env.reserveTemp();
+        env.pushTemp("$a0", s);
         e2.code(s, env);
-        env.releaseTemp();
-        CgenSupport.emitLoad("$t1", offset, "$fp", s);
+        env.popTemp("$t1", s);
         
         CgenSupport.emitUnbox("$t1", "$a0", s);
         CgenSupport.emitDiv("$a0", "$t1", "$a0", s);
-        CgenSupport.emitBoxInt("$a0", offset, s);
+        CgenSupport.emitBoxInt("$a0", env.tempOffset(), s);
     }
     
     public int calculateTemps() {
@@ -1428,19 +1416,14 @@ class lt extends Expression {
       * @param s the output stream 
       * */
     public void code(PrintStream s, Environment env) {
-        int offset = env.tempOffset();
-        
         e1.code(s, env);
-        CgenSupport.emitStore("$a0", offset, "$fp", s);
-        
-        env.reserveTemp();
+        env.pushTemp("$a0", s);
         e2.code(s, env);
-        env.releaseTemp();
-        CgenSupport.emitLoad("$t1", offset, "$fp", s);
+        env.popTemp("$t1", s);
         
         CgenSupport.emitUnbox("$t1", "$a0", s);
         s.println("\tslt\t$a0 $t1 $a0");
-        CgenSupport.emitBoxBool("$a0", offset, s);
+        CgenSupport.emitBoxBool("$a0", env.tempOffset(), s);
     }
     
     public int calculateTemps() {
@@ -1494,19 +1477,14 @@ class eq extends Expression {
       * @param s the output stream 
       * */
     public void code(PrintStream s, Environment env) {
-        int offset = env.tempOffset();
-        
         e1.code(s, env);
-        CgenSupport.emitStore("$a0", offset, "$fp", s);
-        
-        env.reserveTemp();
+        env.pushTemp("$a0", s);
         e2.code(s, env);
-        env.releaseTemp();
-        CgenSupport.emitLoad("$t1", offset, "$fp", s);
+        env.popTemp("$t1", s);
         
         CgenSupport.emitUnbox("$t1", "$a0", s);
         s.println("\tseq\t$a0 $t1 $a0");
-        CgenSupport.emitBoxBool("$a0", offset, s);
+        CgenSupport.emitBoxBool("$a0", env.tempOffset(), s);
     }
     
     public int calculateTemps() {
@@ -1560,19 +1538,14 @@ class leq extends Expression {
       * @param s the output stream 
       * */
     public void code(PrintStream s, Environment env) {
-        int offset = env.tempOffset();
-        
         e1.code(s, env);
-        CgenSupport.emitStore("$a0", offset, "$fp", s);
-        
-        env.reserveTemp();
+        env.pushTemp("$a0", s);
         e2.code(s, env);
-        env.releaseTemp();
-        CgenSupport.emitLoad("$t1", offset, "$fp", s);
+        env.popTemp("$t1", s);
         
         CgenSupport.emitUnbox("$t1", "$a0", s);
         s.println("\tsge\t$a0 $a0 $t1");
-        CgenSupport.emitBoxBool("$a0", offset, s);
+        CgenSupport.emitBoxBool("$a0", env.tempOffset(), s);
     }
     
     public int calculateTemps() {
@@ -1914,6 +1887,9 @@ class object extends Expression {
     public void code(PrintStream s, Environment env) {
         if (name.equals(TreeConstants.self)) {
             CgenSupport.emitMove("$a0", "$s0", s);
+        } else {
+            int offset = env.variableOffset(name);
+            CgenSupport.emitLoad("$a0", offset, "$fp", s);
         }
     }
     
