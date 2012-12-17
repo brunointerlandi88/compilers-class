@@ -159,6 +159,7 @@ abstract class Expression extends TreeNode {
     }
     
     public int calculateTemps() {
+        System.out.println("Implement calculateTemps() for " + toString());
         return 0;
     }
 
@@ -935,6 +936,21 @@ class block extends Expression {
       * @param s the output stream 
       * */
     public void code(PrintStream s, AbstractSymbol className, CgenClassTable classTable, List<AbstractSymbol> formals, int temps) {
+        Expression expr;
+        for (Enumeration e = body.getElements(); e.hasMoreElements(); ) {
+            expr = (Expression)e.nextElement();
+            expr.code(s, className, classTable, formals, temps);
+        }
+    }
+    
+    public int calculateTemps() {
+        List<Integer> temps = new Vector<Integer>();
+        Expression expr;
+        for (Enumeration e = body.getElements(); e.hasMoreElements(); ) {
+            expr = (Expression)e.nextElement();
+            temps.add(expr.calculateTemps());
+        }
+        return Collections.max(temps);
     }
 
 
