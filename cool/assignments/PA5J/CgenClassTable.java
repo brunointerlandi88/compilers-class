@@ -39,7 +39,7 @@ class CgenClassTable extends SymbolTable {
     private int intclasstag;
     private int boolclasstag;
     
-    private Map<AbstractSymbol,Integer> classIds;
+    private Map<AbstractSymbol,CgenNode> classes;
 
 
     // The following methods emit code for constants and global
@@ -373,20 +373,21 @@ class CgenClassTable extends SymbolTable {
     }
     
     private void buildTagsAndTables() {
-        classIds = new HashMap<AbstractSymbol,Integer>();
+        classes = new HashMap<AbstractSymbol,CgenNode>();
         
         int classId = 0;
         CgenNode cnode;
         
         for (Enumeration e = nds.elements(); e.hasMoreElements(); ) {
             cnode = (CgenNode)e.nextElement();
-            classIds.put(cnode.name, classId++);
+            classes.put(cnode.name, cnode);
+            cnode.setId(classId++);
             cnode.buildLayoutIndex();
         }
         
-        stringclasstag = classIds.get(TreeConstants.Str);
-        intclasstag    = classIds.get(TreeConstants.Int);
-        boolclasstag   = classIds.get(TreeConstants.Bool);
+        stringclasstag = classes.get(TreeConstants.Str).getId();
+        intclasstag    = classes.get(TreeConstants.Int).getId();
+        boolclasstag   = classes.get(TreeConstants.Bool).getId();
     }
     
     /** Constructs a new class table and invokes the code generator */
@@ -440,7 +441,7 @@ class CgenClassTable extends SymbolTable {
         for (Enumeration e = nds.elements(); e.hasMoreElements(); ) {
             cnode = (CgenNode)e.nextElement();
             cnode.codeDispatchTable(str);
-            cnode.codeProtoObject(str, classIds, AbstractTable.inttable);
+            cnode.codeProtoObject(str, AbstractTable.inttable);
         }
 
         if (Flags.cgen_debug) System.out.println("coding global text");
@@ -453,9 +454,8 @@ class CgenClassTable extends SymbolTable {
     }
     
     public int methodOffset(AbstractSymbol className, AbstractSymbol methodName) {
-        System.out.println(className);
-        System.out.println(methodName);
-        return 3;
+        CgenNode cnode = classes.get(className);
+        return cnode.methodOffset(methodName);
     }
 
     /** Gets the root of the inheritance tree */

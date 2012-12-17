@@ -60,6 +60,10 @@ class CgenNode extends class_ {
     void setId(int id) {
         this.id = id;
     }
+    
+    int getId() {
+        return id;
+    }
 
     void addChild(CgenNode child) {
         children.addElement(child);
@@ -183,9 +187,13 @@ class CgenNode extends class_ {
         }
     }
     
-    void codeProtoObject(PrintStream s, Map<AbstractSymbol,Integer> classIds, IntTable intTable) {
+    int methodOffset(AbstractSymbol methodName) {
+        return methIndex.indexOf(methodName);
+    }
+    
+    void codeProtoObject(PrintStream s, IntTable intTable) {
         s.println(name + "_protObj:");
-        s.println(CgenSupport.WORD + classIds.get(name));
+        s.println(CgenSupport.WORD + id);
         s.println(CgenSupport.WORD + (attrIndex.size() + 3));
         s.println(CgenSupport.WORD + name + "_dispTab");
         
