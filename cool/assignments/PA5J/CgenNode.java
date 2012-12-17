@@ -22,8 +22,7 @@ PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 // This is a project skeleton file
 
 import java.io.PrintStream;
-import java.util.Vector;
-import java.util.Enumeration;
+import java.util.*;
 
 class CgenNode extends class_ {
     /** The parent of this node in the inheritance tree */
@@ -40,6 +39,10 @@ class CgenNode extends class_ {
     
     /** Does this node correspond to a basic class? */
     private int basic_status;
+    
+    private List<AbstractSymbol> attrIndex, methIndex;
+    private Set<AbstractSymbol>  attrs, methods;
+    private int id;
 
     /** Constructs a new CgenNode to represent class "c".
      * @param c the class
@@ -52,6 +55,10 @@ class CgenNode extends class_ {
         this.children = new Vector();
         this.basic_status = basic_status;
         AbstractTable.stringtable.addString(name.getString());
+    }
+    
+    void setId(int id) {
+        this.id = id;
     }
 
     void addChild(CgenNode child) {
@@ -91,6 +98,138 @@ class CgenNode extends class_ {
      * */
     boolean basic() { 
         return basic_status == Basic; 
+    }
+    
+    void buildLayoutIndex(List<AbstractSymbol> attributes, List<AbstractSymbol> methods) {
+        if (parent != null) {
+            parent.buildLayoutIndex(attributes, methods);
+        }
+        
+        Feature feature;
+        List<AbstractSymbol> list;
+        AbstractSymbol name;
+        
+        for (Enumeration e = features.getElements(); e.hasMoreElements(); ) {
+            feature = (Feature)e.nextElement();
+            list = null;
+            name = null;
+            
+            if (feature instanceof method) {
+                list = methods;
+                name = ((method)feature).name;
+            } else if (feature instanceof attr) {
+                list = attributes;
+                name = ((attr)feature).name;
+            }
+            if (list != null && list.indexOf(name) < 0) {
+                list.add(name);
+            }
+        }
+    }
+    
+    void buildLayoutIndex() {
+        attrs   = new HashSet<AbstractSymbol>();
+        methods = new HashSet<AbstractSymbol>();
+        
+        Feature feature;
+        Set<AbstractSymbol> set;
+        AbstractSymbol name;
+        
+        for (Enumeration e = features.getElements(); e.hasMoreElements(); ) {
+            feature = (Feature)e.nextElement();
+            set  = null;
+            name = null;
+            
+            if (feature instanceof method) {
+                set  = methods;
+                name = ((method)feature).name;
+            } else if (feature instanceof attr) {
+                set  = attrs;
+                name = ((attr)feature).name;
+            }
+            if (set != null) {
+                set.add(name);
+            }
+        }
+        
+        attrIndex = new Vector<AbstractSymbol>();
+        methIndex = new Vector<AbstractSymbol>();
+        
+        buildLayoutIndex(attrIndex, methIndex);
+    }
+    
+    void codeDispatchTable(PrintStream s) {
+        s.println(name + "_dispTab:");
+        
+        for (AbstractSymbol method : methIndex) {
+            s.println(CgenSupport.WORD + classFor(method) + "." + method);
+        }
+    }
+    
+    AbstractSymbol classFor(AbstractSymbol method) {
+        if (methods.contains(method)) {
+            return name;
+        } else if (parent != null) {
+            return parent.classFor(method);
+        } else {
+            return null;
+        }
+    }
+    
+    void codeProtoObject(PrintStream s, Map<AbstractSymbol,Integer> classIds, IntTable intTable) {
+        s.println(name + "_protObj:");
+        s.println(CgenSupport.WORD + classIds.get(name));
+        s.println(CgenSupport.WORD + (attrIndex.size() + 3));
+        s.println(CgenSupport.WORD + name + "_dispTab");
+        
+        IntSymbol isym;
+        
+        if (name.equals(TreeConstants.Str)) {
+            isym = (IntSymbol)intTable.addInt(0);
+            s.print(CgenSupport.WORD) ; isym.codeRef(s) ; s.println("");
+            s.println(CgenSupport.WORD + "0");
+        }
+        if (!name.equals(TreeConstants.Str)) {
+            for (int i = 0; i < attrIndex.size(); i++) {
+                s.println(CgenSupport.WORD + "0");
+            }
+        }
+        
+        s.println(CgenSupport.WORD + "-1");
+    }
+    
+    void codeInit(PrintStream s) {
+        s.println(name + "_init:");
+        CgenSupport.emitMove("$fp", "$sp", s);
+        CgenSupport.emitPush("$ra", s);
+        if (!name.equals(TreeConstants.Object_)) {
+            CgenSupport.emitPush("$fp", s);
+            CgenSupport.emitJal(parent.name + "_init", s);
+        }
+        // TODO initialize attributes
+        CgenSupport.emitLoad("$ra", 1, "$sp", s);
+        CgenSupport.emitAddiu("$sp", "$sp", 8, s);
+        CgenSupport.emitLoad("$fp", 0, "$sp", s);
+        CgenSupport.emitReturn(s);
+    }
+    
+    void codeMethods(PrintStream s) {
+        if (basic_status == 0) return;
+        
+        for (AbstractSymbol method : methods) {
+            codeMethod(s, method);
+        }
+    }
+    
+    void codeMethod(PrintStream s, AbstractSymbol method) {
+        s.println(name + "." + method + ":");
+        CgenSupport.emitMove("$fp", "$sp", s);
+        CgenSupport.emitPush("$ra", s);
+        
+        CgenSupport.emitLoad("$ra", 1, "$sp", s);
+        CgenSupport.emitAddiu("$sp", "$sp", 8, s);
+        CgenSupport.emitLoad("$fp", 0, "$sp", s);
+        CgenSupport.emitReturn(s);
     }
 }
     
