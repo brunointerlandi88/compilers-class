@@ -156,6 +156,13 @@ class CgenNode extends class_ {
         methIndex = new Vector<AbstractSymbol>();
         
         buildLayoutIndex(attrIndex, methIndex);
+        
+        for (Enumeration e = features.getElements(); e.hasMoreElements(); ) {
+            feature = (Feature)e.nextElement();
+            if (feature instanceof method) {
+                ((method)feature).calculateTemps();
+            }
+        }
     }
     
     void codeDispatchTable(PrintStream s) {
@@ -214,22 +221,17 @@ class CgenNode extends class_ {
     }
     
     void codeMethods(PrintStream s) {
+        codeInit(s);
+        
         if (basic_status == 0) return;
         
-        for (AbstractSymbol method : methods) {
-            codeMethod(s, method);
+        Feature feature;
+        for (Enumeration e = features.getElements(); e.hasMoreElements(); ) {
+            feature = (Feature)e.nextElement();
+            if (feature instanceof method) {
+                ((method)feature).code(name, s);
+            }
         }
-    }
-    
-    void codeMethod(PrintStream s, AbstractSymbol method) {
-        s.println(name + "." + method + ":");
-        CgenSupport.emitMove("$fp", "$sp", s);
-        CgenSupport.emitPush("$ra", s);
-        
-        CgenSupport.emitLoad("$ra", 1, "$sp", s);
-        CgenSupport.emitAddiu("$sp", "$sp", 8, s);
-        CgenSupport.emitLoad("$fp", 0, "$sp", s);
-        CgenSupport.emitReturn(s);
     }
 }
     
