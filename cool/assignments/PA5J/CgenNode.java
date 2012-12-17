@@ -207,20 +207,17 @@ class CgenNode extends class_ {
     
     void codeInit(PrintStream s) {
         s.println(name + "_init:");
-        CgenSupport.emitMove("$fp", "$sp", s);
         CgenSupport.emitPush("$ra", s);
         if (!name.equals(TreeConstants.Object_)) {
-            CgenSupport.emitPush("$fp", s);
             CgenSupport.emitJal(parent.name + "_init", s);
         }
         // TODO initialize attributes
         CgenSupport.emitLoad("$ra", 1, "$sp", s);
-        CgenSupport.emitAddiu("$sp", "$sp", 8, s);
-        CgenSupport.emitLoad("$fp", 0, "$sp", s);
+        CgenSupport.emitAddiu("$sp", "$sp", 4, s);
         CgenSupport.emitReturn(s);
     }
     
-    void codeMethods(PrintStream s) {
+    void codeMethods(PrintStream s, CgenClassTable classTable) {
         codeInit(s);
         
         if (basic_status == 0) return;
@@ -229,7 +226,7 @@ class CgenNode extends class_ {
         for (Enumeration e = features.getElements(); e.hasMoreElements(); ) {
             feature = (Feature)e.nextElement();
             if (feature instanceof method) {
-                ((method)feature).code(name, s);
+                ((method)feature).code(s, name, classTable);
             }
         }
     }

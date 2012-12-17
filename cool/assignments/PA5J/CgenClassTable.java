@@ -448,8 +448,14 @@ class CgenClassTable extends SymbolTable {
         
         for (Enumeration e = nds.elements(); e.hasMoreElements(); ) {
             cnode = (CgenNode)e.nextElement();
-            cnode.codeMethods(str);
+            cnode.codeMethods(str, this);
         }
+    }
+    
+    public int methodOffset(AbstractSymbol className, AbstractSymbol methodName) {
+        System.out.println(className);
+        System.out.println(methodName);
+        return 3;
     }
 
     /** Gets the root of the inheritance tree */
