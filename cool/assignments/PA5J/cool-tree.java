@@ -488,13 +488,21 @@ class attr extends Feature {
         init.dump_with_types(out, n + 2);
     }
     
-    public void code(PrintStream s, CgenClassTable.Environment env) {
+    public void codeDefault(PrintStream s, CgenClassTable.Environment env) {
         env.pushTemp("$a0", s);
-        if (init.isNull()) {
-            CgenSupport.emitNew(type_decl, s);
-        } else {
-            init.code(s, env);
-        }
+        CgenSupport.emitNew(type_decl, s);
+        CgenSupport.emitMove("$t1", "$a0", s);
+        env.popTemp("$a0", s);
+        
+        int offset = env.attributeOffset(name);
+        CgenSupport.emitStore("$t1", offset, "$a0", s);
+    }
+    
+    public void codeInit(PrintStream s, CgenClassTable.Environment env) {
+        if (init.isNull()) return;
+        
+        env.pushTemp("$a0", s);
+        init.code(s, env);
         CgenSupport.emitMove("$t1", "$a0", s);
         env.popTemp("$a0", s);
         

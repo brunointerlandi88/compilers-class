@@ -236,10 +236,17 @@ class CgenNode extends class_ {
         
         if (!basic()) {
             env = classTable.createEnv(name, TreeConstants.self, new Vector<AbstractSymbol>(), 3, temps, 0);
+            
             for (e = features.getElements(); e.hasMoreElements(); ) {
                 feature = (Feature)e.nextElement();
                 if (feature instanceof attr) {
-                    ((attr)feature).code(s, env);
+                    ((attr)feature).codeDefault(s, env);
+                }
+            }
+            for (e = features.getElements(); e.hasMoreElements(); ) {
+                feature = (Feature)e.nextElement();
+                if (feature instanceof attr) {
+                    ((attr)feature).codeInit(s, env);
                 }
             }
         }
