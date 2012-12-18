@@ -42,6 +42,7 @@ class CgenNode extends class_ {
     
     protected List<AbstractSymbol> attributes, methods;
     private Set<AbstractSymbol> _attributes, _methods;
+    private Map<AbstractSymbol,attr> attrCache;
     private int id;
 
     /** Constructs a new CgenNode to represent class "c".
@@ -114,6 +115,8 @@ class CgenNode extends class_ {
         _attributes = new HashSet<AbstractSymbol>();
         _methods    = new HashSet<AbstractSymbol>();
         
+        attrCache = new HashMap<AbstractSymbol,attr>();
+        
         if (parent != null) {
             for (AbstractSymbol a : parent.attributes) {
                 attributes.add(a);
@@ -143,6 +146,8 @@ class CgenNode extends class_ {
                 list = attributes;
                 _set = _attributes;
                 name = ((attr)feature).name;
+                
+                attrCache.put(name, (attr)feature);
             }
             if (list != null && list.indexOf(name) < 0) {
                 list.add(name);
@@ -230,19 +235,19 @@ class CgenNode extends class_ {
         CgenSupport.emitAddiu("$fp", "$sp", 4, s);
         CgenSupport.emitMove("$s0", "$a0", s);
         
+        env = classTable.createEnv(name, TreeConstants.self, new Vector<AbstractSymbol>(), 3, temps, 0);
+        
+        if (!basic()) {
+            for (AbstractSymbol attr : attributes) {
+                attrFor(attr).codeDefault(s, env);
+            }
+        }
+        
         if (!name.equals(TreeConstants.Object_)) {
             CgenSupport.emitJal(parent.name + "_init", s);
         }
         
         if (!basic()) {
-            env = classTable.createEnv(name, TreeConstants.self, new Vector<AbstractSymbol>(), 3, temps, 0);
-            
-            for (e = features.getElements(); e.hasMoreElements(); ) {
-                feature = (Feature)e.nextElement();
-                if (feature instanceof attr) {
-                    ((attr)feature).codeDefault(s, env);
-                }
-            }
             for (e = features.getElements(); e.hasMoreElements(); ) {
                 feature = (Feature)e.nextElement();
                 if (feature instanceof attr) {
@@ -257,6 +262,15 @@ class CgenNode extends class_ {
         
         CgenSupport.emitAddiu("$sp", "$sp", frameSize, s);
         CgenSupport.emitReturn(s);
+    }
+    
+    public attr attrFor(AbstractSymbol attrName) {
+        attr attribute = attrCache.get(attrName);
+        if (attribute == null) {
+            return parent.attrFor(attrName);
+        } else {
+            return attribute;
+        }
     }
     
     void codeMethods(PrintStream s, CgenClassTable classTable) {
