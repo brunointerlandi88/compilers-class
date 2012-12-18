@@ -165,6 +165,12 @@ class CgenSupport {
         emitLoad("$t1", offset, "$fp", s);
         emitStore("$t1", 3, "$a0", s);
     }
+    
+    static void emitNew(AbstractSymbol type, PrintStream s) {
+        emitLoadAddress("$a0", type + "_protObj", s);
+        emitJal("Object.copy", s);
+        emitJal(type + "_init", s);
+    }
 
     /** Emits the LI instruction.
      * @param dest_reg the destination register

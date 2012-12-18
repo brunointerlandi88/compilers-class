@@ -163,6 +163,10 @@ abstract class Expression extends TreeNode {
         System.out.println("Implement calculateTemps() for " + toString());
         return 0;
     }
+    
+    public boolean isNull() {
+        return false;
+    }
 
 }
 
@@ -486,7 +490,11 @@ class attr extends Feature {
     
     public void code(PrintStream s, CgenClassTable.Environment env) {
         env.pushTemp("$a0", s);
-        init.code(s, env);
+        if (init.isNull()) {
+            CgenSupport.emitNew(type_decl, s);
+        } else {
+            init.code(s, env);
+        }
         CgenSupport.emitMove("$t1", "$a0", s);
         env.popTemp("$a0", s);
         
@@ -1089,7 +1097,11 @@ class let extends Expression {
       * @param s the output stream 
       * */
     public void code(PrintStream s, CgenClassTable.Environment env) {
-        init.code(s, env);
+        if (init.isNull()) {
+            CgenSupport.emitNew(type_decl, s);
+        } else {
+            init.code(s, env);
+        }
         env.pushBinding("$a0", identifier, s);
         body.code(s, env);
         env.popBinding();
@@ -1802,9 +1814,7 @@ class new_ extends Expression {
       * @param s the output stream 
       * */
     public void code(PrintStream s, CgenClassTable.Environment env) {
-        CgenSupport.emitLoadAddress("$a0", type_name + "_protObj", s);
-        CgenSupport.emitJal("Object.copy", s);
-        CgenSupport.emitJal(type_name + "_init", s);
+        CgenSupport.emitNew(type_name, s);
     }
     
     public int calculateTemps() {
@@ -1890,6 +1900,10 @@ class no_expr extends Expression {
     
     public int calculateTemps() {
         return 0;
+    }
+    
+    public boolean isNull() {
+        return true;
     }
 
 
