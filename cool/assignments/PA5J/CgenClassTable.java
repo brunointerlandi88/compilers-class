@@ -482,7 +482,7 @@ class CgenClassTable extends SymbolTable {
         private int headers;
         private int temporaries;
         private int tempOffset;
-        private int condLabel;
+        private int label;
         
         public Environment(CgenClassTable classTable, AbstractSymbol currentClass,
                            AbstractSymbol methodName, List<AbstractSymbol> formals,
@@ -496,7 +496,7 @@ class CgenClassTable extends SymbolTable {
             this.headers      = headers;
             this.temporaries  = temporaries;
             this.tempOffset   = tempOffset;
-            this.condLabel    = 0;
+            this.label        = 0;
         }
         
         public int methodOffset(AbstractSymbol type, AbstractSymbol methodName) {
@@ -572,10 +572,18 @@ class CgenClassTable extends SymbolTable {
         
         public List<String> condLabels() {
             List<String> labels = new Vector<String>();
-            labels.add(currentClass + "." + methodName + ".if_true" + condLabel);
-            labels.add(currentClass + "." + methodName + ".if_false" + condLabel);
-            labels.add(currentClass + "." + methodName + ".end_if" + condLabel);
-            condLabel++;
+            labels.add(currentClass + "." + methodName + ".if_true" + label);
+            labels.add(currentClass + "." + methodName + ".if_false" + label);
+            labels.add(currentClass + "." + methodName + ".end_if" + label);
+            label++;
+            return labels;
+        }
+        
+        public List<String> loopLabels() {
+            List<String> labels = new Vector<String>();
+            labels.add(currentClass + "." + methodName + ".begin_while" + label);
+            labels.add(currentClass + "." + methodName + ".end_while" + label);
+            label++;
             return labels;
         }
     }

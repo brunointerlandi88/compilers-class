@@ -885,6 +885,23 @@ class loop extends Expression {
       * @param s the output stream 
       * */
     public void code(PrintStream s, CgenClassTable.Environment env) {
+        List<String> labels = env.loopLabels();
+        s.println(labels.get(0) + ":");
+        
+        pred.code(s, env);
+        CgenSupport.emitLoad("$t1", 3, "$a0", s);
+        s.println("\tbeq\t$t1 $zero " + labels.get(1));
+        
+        body.code(s, env);
+        s.println("\tb\t" + labels.get(0));
+        s.println(labels.get(1) + ":");
+    }
+    
+    public int calculateTemps() {
+        List<Integer> temps = new Vector<Integer>();
+        temps.add(pred.calculateTemps());
+        temps.add(body.calculateTemps());
+        return Collections.max(temps);
     }
 
 
