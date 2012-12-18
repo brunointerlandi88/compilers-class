@@ -489,11 +489,14 @@ class attr extends Feature {
     }
     
     public void codeDefault(PrintStream s, CgenClassTable.Environment env) {
-        env.pushTemp("$a0", s);
-        CgenSupport.emitNew(type_decl, s);
-        CgenSupport.emitMove("$t1", "$a0", s);
-        env.popTemp("$a0", s);
-        
+        if (env.isBasicType(type_decl)) {
+            env.pushTemp("$a0", s);
+            CgenSupport.emitNew(type_decl, s);
+            CgenSupport.emitMove("$t1", "$a0", s);
+            env.popTemp("$a0", s);
+        } else {
+            CgenSupport.emitLoadImm("$t1", 0, s);
+        }
         int offset = env.attributeOffset(name);
         CgenSupport.emitStore("$t1", offset, "$a0", s);
     }
@@ -789,11 +792,18 @@ class dispatch extends Expression {
             CgenSupport.emitPush("$a0", s);
         }
         
-        expr.code(s, env);
-        CgenSupport.emitLoad("$t1", 2, "$a0", s);
-        
+        String label = env.label();
         int offset = env.methodOffset(expr.get_type(), name);
         
+        expr.code(s, env);
+        
+        s.println("\tbne\t$a0 $zero " + label);
+        CgenSupport.emitLoadString("$a0", env.filename(), s);
+        CgenSupport.emitLoadImm("$t1", 1, s);
+        CgenSupport.emitJal("_dispatch_abort", s);
+        
+        s.println(label + ":");
+        CgenSupport.emitLoad("$t1", 2, "$a0", s);
         CgenSupport.emitLoad("$t1", offset, "$t1", s);
         CgenSupport.emitJalr("$t1", s);
     }
@@ -936,6 +946,7 @@ class loop extends Expression {
         body.code(s, env);
         s.println("\tb\t" + labels.get(0));
         s.println(labels.get(1) + ":");
+        CgenSupport.emitLoadImm("$a0", 0, s);
     }
     
     public int calculateTemps() {
@@ -1868,6 +1879,23 @@ class isvoid extends Expression {
       * @param s the output stream 
       * */
     public void code(PrintStream s, CgenClassTable.Environment env) {
+        e1.code(s, env);
+        
+        List<String> labels = env.condLabels();
+        s.println("\tbeq\t$a0 $zero " + labels.get(0));
+        
+        s.println(labels.get(1) + ":");
+        CgenSupport.emitLoadAddress("$a0", "bool_const0", s);
+        s.println("\tb\t" + labels.get(2));
+        
+        s.println(labels.get(0) + ":");
+        CgenSupport.emitLoadAddress("$a0", "bool_const1", s);
+        
+        s.println(labels.get(2) + ":");
+    }
+    
+    public int calculateTemps() {
+        return 0;
     }
 
 
