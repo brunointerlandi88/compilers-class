@@ -1002,6 +1002,44 @@ class typcase extends Expression {
       * @param s the output stream 
       * */
     public void code(PrintStream s, CgenClassTable.Environment env) {
+        expr.code(s, env);
+        CgenSupport.emitLoad("$t1", 0, "$a0", s);
+        
+        String endLabel = env.label(), clauseLabel;
+        List<String> labels = new Vector<String>();
+        
+        Enumeration e;
+        branch b;
+        
+        for (e = cases.getElements(); e.hasMoreElements(); ) {
+            b = (branch)e.nextElement();
+            CgenSupport.emitLoadImm("$t2", env.classId(b.type_decl), s);
+            clauseLabel = env.label();
+            labels.add(clauseLabel);
+            s.println("\tbeq\t$t1 $t2 " + clauseLabel);
+        }
+        
+        int index = 0;
+        
+        for (e = cases.getElements(); e.hasMoreElements(); ) {
+            b = (branch)e.nextElement();
+            s.println(labels.get(index++) + ":");
+            env.pushBinding("$a0", b.name, s);
+            b.expr.code(s, env);
+            env.popBinding();
+            s.println("\tb " + endLabel);
+        }
+        
+        s.println(endLabel + ":");
+    }
+    
+    public int calculateTemps() {
+        List<Integer> temps = new Vector<Integer>();
+        temps.add(0);
+        for (Enumeration e = cases.getElements(); e.hasMoreElements(); ) {
+            temps.add(1 + ((branch)e.nextElement()).expr.calculateTemps());
+        }
+        return Collections.max(temps);
     }
 
 

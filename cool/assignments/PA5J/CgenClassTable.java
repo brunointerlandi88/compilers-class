@@ -409,10 +409,6 @@ class CgenClassTable extends SymbolTable {
         exitScope();
     }
     
-    public StringSymbol filename(AbstractSymbol className) {
-        return (StringSymbol)classes.get(className).filename;
-    }
-    
     /** This method is the meat of the code generator.  It is to be
         filled in programming assignment 5 */
     public void code() {
@@ -455,6 +451,15 @@ class CgenClassTable extends SymbolTable {
             cnode = (CgenNode)e.nextElement();
             cnode.codeMethods(str, this);
         }
+    }
+    
+    public StringSymbol filename(AbstractSymbol className) {
+        return (StringSymbol)classes.get(className).filename;
+    }
+    
+    public int classId(AbstractSymbol className) {
+        CgenNode cnode = classes.get(className);
+        return cnode.getId();
     }
     
     public int methodOffset(AbstractSymbol className, AbstractSymbol methodName) {
@@ -511,6 +516,13 @@ class CgenClassTable extends SymbolTable {
         
         public StringSymbol filename() {
             return classTable.filename(currentClass);
+        }
+        
+        public int classId(AbstractSymbol type) {
+            if (type.equals(TreeConstants.SELF_TYPE)) {
+                type = currentClass;
+            }
+            return classTable.classId(type);
         }
         
         public int methodOffset(AbstractSymbol type, AbstractSymbol methodName) {
