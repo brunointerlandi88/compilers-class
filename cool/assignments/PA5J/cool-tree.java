@@ -1002,14 +1002,15 @@ class typcase extends Expression {
       * @param s the output stream 
       * */
     public void code(PrintStream s, CgenClassTable.Environment env) {
-        expr.code(s, env);
-        CgenSupport.emitLoad("$t1", 0, "$a0", s);
-        
         String endLabel = env.label(), clauseLabel;
         List<String> labels = new Vector<String>();
         
         Enumeration e;
         branch b;
+        
+        expr.code(s, env);
+        s.println("\tbeq\t$a0 $zero " + endLabel + ".void");
+        CgenSupport.emitLoad("$t1", 0, "$a0", s);
         
         for (e = cases.getElements(); e.hasMoreElements(); ) {
             b = (branch)e.nextElement();
@@ -1018,6 +1019,12 @@ class typcase extends Expression {
             labels.add(clauseLabel);
             s.println("\tbeq\t$t1 $t2 " + clauseLabel);
         }
+        CgenSupport.emitJal("_case_abort", s);
+        
+        s.println(endLabel + ".void:");
+        CgenSupport.emitLoadString("$a0", env.filename(), s);
+        CgenSupport.emitLoadImm("$t1", lineNumber, s);
+        CgenSupport.emitJal("_case_abort2", s);
         
         int index = 0;
         
