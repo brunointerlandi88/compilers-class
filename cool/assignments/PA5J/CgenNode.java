@@ -65,6 +65,24 @@ class CgenNode extends class_ {
     int getId() {
         return id;
     }
+    
+    int getLowId() {
+        int id = this.id, tmp = 0;
+        for (Object cnode : children) {
+            tmp = ((CgenNode)cnode).getLowId();
+            if (tmp < id) id = tmp;
+        }
+        return id;
+    }
+    
+    int getHighId() {
+        int id = this.id, tmp = 0;
+        for (Object cnode : children) {
+            tmp = ((CgenNode)cnode).getHighId();
+            if (tmp > id) id = tmp;
+        }
+        return id;
+    }
 
     void addChild(CgenNode child) {
         children.addElement(child);

@@ -462,6 +462,16 @@ class CgenClassTable extends SymbolTable {
         return cnode.getId();
     }
     
+    public int lowClassId(AbstractSymbol className) {
+        CgenNode cnode = classes.get(className);
+        return cnode.getLowId();
+    }
+    
+    public int highClassId(AbstractSymbol className) {
+        CgenNode cnode = classes.get(className);
+        return cnode.getHighId();
+    }
+    
     public int methodOffset(AbstractSymbol className, AbstractSymbol methodName) {
         CgenNode cnode = classes.get(className);
         return cnode.methodOffset(methodName);
@@ -523,6 +533,20 @@ class CgenClassTable extends SymbolTable {
                 type = currentClass;
             }
             return classTable.classId(type);
+        }
+        
+        public int lowClassId(AbstractSymbol type) {
+            if (type.equals(TreeConstants.SELF_TYPE)) {
+                type = currentClass;
+            }
+            return classTable.lowClassId(type);
+        }
+        
+        public int highClassId(AbstractSymbol type) {
+            if (type.equals(TreeConstants.SELF_TYPE)) {
+                type = currentClass;
+            }
+            return classTable.highClassId(type);
         }
         
         public int methodOffset(AbstractSymbol type, AbstractSymbol methodName) {

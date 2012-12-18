@@ -996,46 +996,71 @@ class typcase extends Expression {
         }
         dump_type(out, n);
     }
+    
+    static class Pair implements Comparable<Pair> {
+        private CgenClassTable.Environment env;
+        public branch branch;
+        
+        Pair(CgenClassTable.Environment env, branch branch) {
+            this.env = env;
+            this.branch = branch;
+        }
+        
+        public int compareTo(Pair other) {
+            return this.rank() - other.rank();
+        }
+        
+        public int rank() {
+            return env.highClassId(branch.type_decl) - env.lowClassId(branch.type_decl);
+        }
+    }
+    
     /** Generates code for this expression.  This method is to be completed 
       * in programming assignment 5.  (You may add or remove parameters as
       * you wish.)
       * @param s the output stream 
       * */
     public void code(PrintStream s, CgenClassTable.Environment env) {
-        String endLabel = env.label(), clauseLabel;
-        List<String> labels = new Vector<String>();
+        String endLabel = env.label(),
+               nextLabel = env.label(),
+               clauseLabel;
         
         Enumeration e;
+        Pair p;
         branch b;
         
         expr.code(s, env);
         s.println("\tbeq\t$a0 $zero " + endLabel + ".void");
         CgenSupport.emitLoad("$t1", 0, "$a0", s);
         
+        List<Pair> branches = new Vector<Pair>();
         for (e = cases.getElements(); e.hasMoreElements(); ) {
-            b = (branch)e.nextElement();
-            CgenSupport.emitLoadImm("$t2", env.classId(b.type_decl), s);
-            clauseLabel = env.label();
-            labels.add(clauseLabel);
-            s.println("\tbeq\t$t1 $t2 " + clauseLabel);
+            p = new Pair(env, (branch)e.nextElement());
+            branches.add(p);
         }
+        Collections.sort(branches);
+        
+        for (Pair pp : branches) {
+            b = pp.branch;
+            clauseLabel = nextLabel;
+            nextLabel = env.label();
+            
+            s.println(clauseLabel + ":");
+            s.println("\tblt\t$t1 " + env.lowClassId(b.type_decl) + " " + nextLabel);
+            s.println("\tbgt\t$t1 " + env.highClassId(b.type_decl) + " " + nextLabel);
+            
+            env.pushBinding("$a0", b.name, s);
+            b.expr.code(s, env);
+            env.popBinding();
+            s.println("\tb " + endLabel);
+        }
+        s.println(nextLabel + ":");
         CgenSupport.emitJal("_case_abort", s);
         
         s.println(endLabel + ".void:");
         CgenSupport.emitLoadString("$a0", env.filename(), s);
         CgenSupport.emitLoadImm("$t1", lineNumber, s);
         CgenSupport.emitJal("_case_abort2", s);
-        
-        int index = 0;
-        
-        for (e = cases.getElements(); e.hasMoreElements(); ) {
-            b = (branch)e.nextElement();
-            s.println(labels.get(index++) + ":");
-            env.pushBinding("$a0", b.name, s);
-            b.expr.code(s, env);
-            env.popBinding();
-            s.println("\tb " + endLabel);
-        }
         
         s.println(endLabel + ":");
     }
