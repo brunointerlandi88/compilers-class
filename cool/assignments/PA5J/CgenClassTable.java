@@ -550,12 +550,16 @@ class CgenClassTable extends SymbolTable {
         
         public void assign(String reg, AbstractSymbol id, PrintStream s) {
             int offset = localOffset(id);
+            String out;
             if (offset >= 0) {
-                CgenSupport.emitStore("$a0", offset, "$fp", s);
+                out = "$fp";
             } else {
                 offset = attributeOffset(id);
-                CgenSupport.emitStore("$a0", offset, "$s0", s);
+                out = "$s0";
             }
+            CgenSupport.emitStore(reg, offset, out, s);
+            CgenSupport.emitAddiu("$a1", out, offset, s);
+            CgenSupport.emitJal("_GenGC_Assign", s);
         }
         
         public void lookup(AbstractSymbol id, PrintStream s) {
