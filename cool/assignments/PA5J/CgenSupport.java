@@ -152,6 +152,7 @@ class CgenSupport {
         emitStore(reg, offset, "$fp", s);
         emitLoadAddress("$a0", "Int_protObj", s);
         emitJal("Object.copy", s);
+        emitJal("Int_init", s);
         emitLoad("$t1", offset, "$fp", s);
         emitStore("$t1", 3, "$a0", s);
     }
@@ -160,6 +161,7 @@ class CgenSupport {
         emitStore(reg, offset, "$fp", s);
         emitLoadAddress("$a0", "Bool_protObj", s);
         emitJal("Object.copy", s);
+        emitJal("Bool_init", s);
         emitLoad("$t1", offset, "$fp", s);
         emitStore("$t1", 3, "$a0", s);
     }

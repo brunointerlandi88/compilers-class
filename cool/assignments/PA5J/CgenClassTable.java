@@ -408,7 +408,7 @@ class CgenClassTable extends SymbolTable {
 
         exitScope();
     }
-
+    
     /** This method is the meat of the code generator.  It is to be
         filled in programming assignment 5 */
     public void code() {
@@ -457,11 +457,104 @@ class CgenClassTable extends SymbolTable {
         CgenNode cnode = classes.get(className);
         return cnode.methodOffset(methodName);
     }
+    
+    public int attributeOffset(AbstractSymbol className, AbstractSymbol attrName) {
+        CgenNode cnode = classes.get(className);
+        return cnode.attrOffset(attrName);
+    }
 
     /** Gets the root of the inheritance tree */
     public CgenNode root() {
         return (CgenNode)probe(TreeConstants.Object_);
     }
+    
+    public Environment createEnv(AbstractSymbol className, AbstractSymbol methodName,
+                                 List<AbstractSymbol> formals, int headers, int temps, int tempOffset) {
+         return new Environment(this, className, methodName, formals, headers, temps, tempOffset);
+     }
+    
+    public static class Environment {
+        private CgenClassTable classTable;
+        private AbstractSymbol currentClass;
+        private AbstractSymbol methodName;
+        private List<AbstractSymbol> formals;
+        private int headers;
+        private int temporaries;
+        private int tempOffset;
+        private int condLabel;
+        
+        public Environment(CgenClassTable classTable, AbstractSymbol currentClass,
+                           AbstractSymbol methodName, List<AbstractSymbol> formals,
+                           int headers, int temporaries, int tempOffset) {
+            
+            this.classTable   = classTable;
+            this.currentClass = currentClass;
+            this.methodName   = methodName;
+            this.formals      = formals;
+            this.headers      = headers;
+            this.temporaries  = temporaries;
+            this.tempOffset   = tempOffset;
+            this.condLabel    = 0;
+        }
+        
+        public int methodOffset(AbstractSymbol type, AbstractSymbol methodName) {
+            if (type.equals(TreeConstants.SELF_TYPE)) {
+                type = currentClass;
+            }
+            return classTable.methodOffset(type, methodName);
+        }
+        
+        public int attributeOffset(AbstractSymbol attrName) {
+            return classTable.attributeOffset(currentClass, attrName);
+        }
+        
+        public int localOffset(AbstractSymbol name) {
+            int index = formals.indexOf(name);
+            if (index < 0) {
+                return index;
+            } else {
+                return headers + temporaries + formals.size() - index - 1;
+            }
+        }
+        
+        public void generateIdLookup(AbstractSymbol id, PrintStream s) {
+            if (id.equals(TreeConstants.self)) {
+                CgenSupport.emitMove("$a0", "$s0", s);
+            } else {
+                int offset = localOffset(id);
+                if (offset >= 0) {
+                    CgenSupport.emitLoad("$a0", offset, "$fp", s);
+                } else {
+                    offset = attributeOffset(id);
+                    CgenSupport.emitLoad("$a0", offset, "$s0", s);
+                }
+            }
+        }
+        
+        public void pushTemp(String reg, PrintStream s) {
+            CgenSupport.emitStore(reg, tempOffset, "$fp", s);
+            tempOffset++;
+        }
+        
+        public void popTemp(String reg, PrintStream s) {
+            tempOffset--;
+            CgenSupport.emitLoad(reg, tempOffset, "$fp", s);
+        }
+        
+        public int tempOffset() {
+            return tempOffset;
+        }
+        
+        public List<String> condLabels() {
+            List<String> labels = new Vector<String>();
+            labels.add(currentClass + "." + methodName + ".if_true" + condLabel);
+            labels.add(currentClass + "." + methodName + ".if_false" + condLabel);
+            labels.add(currentClass + "." + methodName + ".end_if" + condLabel);
+            condLabel++;
+            return labels;
+        }
+    }
+
 }
                           
     

@@ -12,64 +12,6 @@ import java.io.PrintStream;
 import java.util.*;
 
 
-class Environment {
-    private CgenClassTable classTable;
-    private AbstractSymbol currentClass;
-    private AbstractSymbol methodName;
-    private List<AbstractSymbol> formals;
-    private int headers;
-    private int temporaries;
-    private int tempOffset;
-    private int condLabel;
-    
-    public Environment(CgenClassTable classTable, AbstractSymbol currentClass,
-                       AbstractSymbol methodName, List<AbstractSymbol> formals,
-                       int headers, int temporaries, int tempOffset) {
-        
-        this.classTable   = classTable;
-        this.currentClass = currentClass;
-        this.methodName   = methodName;
-        this.formals      = formals;
-        this.headers      = headers;
-        this.temporaries  = temporaries;
-        this.tempOffset   = tempOffset;
-        this.condLabel    = 0;
-    }
-    
-    public int methodOffset(AbstractSymbol type, AbstractSymbol methodName) {
-        if (type.equals(TreeConstants.SELF_TYPE)) {
-            type = currentClass;
-        }
-        return classTable.methodOffset(type, methodName);
-    }
-    
-    public int variableOffset(AbstractSymbol name) {
-        return headers + temporaries + formals.size() - formals.indexOf(name) - 1;
-    }
-    
-    public void pushTemp(String reg, PrintStream s) {
-        CgenSupport.emitStore(reg, tempOffset, "$fp", s);
-        tempOffset++;
-    }
-    
-    public void popTemp(String reg, PrintStream s) {
-        tempOffset--;
-        CgenSupport.emitLoad(reg, tempOffset, "$fp", s);
-    }
-    
-    public int tempOffset() {
-        return tempOffset;
-    }
-    
-    public List<String> condLabels() {
-        List<String> labels = new Vector<String>();
-        labels.add(currentClass + "." + methodName + ".if_true" + condLabel);
-        labels.add(currentClass + "." + methodName + ".if_false" + condLabel);
-        labels.add(currentClass + "." + methodName + ".end_if" + condLabel);
-        condLabel++;
-        return labels;
-    }
-}
 
 /** Defines simple phylum Program */
 abstract class Program extends TreeNode {
@@ -214,7 +156,7 @@ abstract class Expression extends TreeNode {
             { out.println(Utilities.pad(n) + ": _no_type"); }
     }
     
-    public void code(PrintStream s, Environment env) {
+    public void code(PrintStream s, CgenClassTable.Environment env) {
     }
     
     public int calculateTemps() {
@@ -462,7 +404,7 @@ class method extends Feature {
         expr.dump_with_types(out, n + 2);
     }
     
-    public void code(PrintStream s, AbstractSymbol className, CgenClassTable classTable) {
+    public void code(PrintStream s, CgenClassTable classTable, AbstractSymbol className) {
         int frameSize = 12 + 4 * temps;
         
         s.println(className + "." + name + ":");
@@ -476,7 +418,7 @@ class method extends Feature {
         CgenSupport.emitAddiu("$fp", "$sp", 4, s);
         CgenSupport.emitMove("$s0", "$a0", s);
         
-        Environment env = new Environment(classTable, className, name, getFormals(), 3, temps, 0);
+        CgenClassTable.Environment env = classTable.createEnv(className, name, getFormals(), 3, temps, 0);
         expr.code(s, env);
         
         CgenSupport.emitLoad("$fp", temps + 3, "$sp", s);
@@ -540,6 +482,20 @@ class attr extends Feature {
         dump_AbstractSymbol(out, n + 2, name);
         dump_AbstractSymbol(out, n + 2, type_decl);
         init.dump_with_types(out, n + 2);
+    }
+    
+    public void code(PrintStream s, CgenClassTable.Environment env) {
+        env.pushTemp("$a0", s);
+        init.code(s, env);
+        CgenSupport.emitMove("$t1", "$a0", s);
+        env.popTemp("$a0", s);
+        
+        int offset = env.attributeOffset(name);
+        CgenSupport.emitStore("$t1", offset, "$a0", s);
+    }
+    
+    public int calculateTemps() {
+        return init.calculateTemps();
     }
 
 }
@@ -663,7 +619,7 @@ class assign extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, Environment env) {
+    public void code(PrintStream s, CgenClassTable.Environment env) {
     }
 
 
@@ -723,7 +679,7 @@ class static_dispatch extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, Environment env) {
+    public void code(PrintStream s, CgenClassTable.Environment env) {
     }
 
 
@@ -778,7 +734,7 @@ class dispatch extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, Environment env) {
+    public void code(PrintStream s, CgenClassTable.Environment env) {
         Expression exp;
         for (Enumeration e = actual.getElements(); e.hasMoreElements(); ) {
             exp = (Expression)e.nextElement();
@@ -854,7 +810,7 @@ class cond extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, Environment env) {
+    public void code(PrintStream s, CgenClassTable.Environment env) {
         List<String> labels = env.condLabels();
         
         pred.code(s, env);
@@ -922,7 +878,7 @@ class loop extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, Environment env) {
+    public void code(PrintStream s, CgenClassTable.Environment env) {
     }
 
 
@@ -970,7 +926,7 @@ class typcase extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, Environment env) {
+    public void code(PrintStream s, CgenClassTable.Environment env) {
     }
 
 
@@ -1013,7 +969,7 @@ class block extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, Environment env) {
+    public void code(PrintStream s, CgenClassTable.Environment env) {
         Expression expr;
         for (Enumeration e = body.getElements(); e.hasMoreElements(); ) {
             expr = (Expression)e.nextElement();
@@ -1084,7 +1040,7 @@ class let extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, Environment env) {
+    public void code(PrintStream s, CgenClassTable.Environment env) {
     }
 
 
@@ -1130,7 +1086,7 @@ class plus extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, Environment env) {
+    public void code(PrintStream s, CgenClassTable.Environment env) {
         e1.code(s, env);
         env.pushTemp("$a0", s);
         e2.code(s, env);
@@ -1191,7 +1147,7 @@ class sub extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, Environment env) {
+    public void code(PrintStream s, CgenClassTable.Environment env) {
         e1.code(s, env);
         env.pushTemp("$a0", s);
         e2.code(s, env);
@@ -1252,7 +1208,7 @@ class mul extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, Environment env) {
+    public void code(PrintStream s, CgenClassTable.Environment env) {
         e1.code(s, env);
         env.pushTemp("$a0", s);
         e2.code(s, env);
@@ -1313,7 +1269,7 @@ class divide extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, Environment env) {
+    public void code(PrintStream s, CgenClassTable.Environment env) {
         e1.code(s, env);
         env.pushTemp("$a0", s);
         e2.code(s, env);
@@ -1369,7 +1325,7 @@ class neg extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, Environment env) {
+    public void code(PrintStream s, CgenClassTable.Environment env) {
     }
 
 
@@ -1415,7 +1371,7 @@ class lt extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, Environment env) {
+    public void code(PrintStream s, CgenClassTable.Environment env) {
         e1.code(s, env);
         env.pushTemp("$a0", s);
         e2.code(s, env);
@@ -1476,7 +1432,7 @@ class eq extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, Environment env) {
+    public void code(PrintStream s, CgenClassTable.Environment env) {
         e1.code(s, env);
         env.pushTemp("$a0", s);
         e2.code(s, env);
@@ -1537,7 +1493,7 @@ class leq extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, Environment env) {
+    public void code(PrintStream s, CgenClassTable.Environment env) {
         e1.code(s, env);
         env.pushTemp("$a0", s);
         e2.code(s, env);
@@ -1593,7 +1549,7 @@ class comp extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, Environment env) {
+    public void code(PrintStream s, CgenClassTable.Environment env) {
     }
 
 
@@ -1633,7 +1589,7 @@ class int_const extends Expression {
       * to you as an example of code generation.
       * @param s the output stream 
       * */
-    public void code(PrintStream s, Environment env) {
+    public void code(PrintStream s, CgenClassTable.Environment env) {
         CgenSupport.emitLoadInt(CgenSupport.ACC,
                                 (IntSymbol)AbstractTable.inttable.lookup(token.getString()), s);
     }
@@ -1678,7 +1634,7 @@ class bool_const extends Expression {
       * to you as an example of code generation.
       * @param s the output stream 
       * */
-    public void code(PrintStream s, Environment env) {
+    public void code(PrintStream s, CgenClassTable.Environment env) {
         CgenSupport.emitLoadBool(CgenSupport.ACC, new BoolConst(val), s);
     }
 
@@ -1720,7 +1676,7 @@ class string_const extends Expression {
       * to you as an example of code generation.
       * @param s the output stream 
       * */
-    public void code(PrintStream s, Environment env) {
+    public void code(PrintStream s, CgenClassTable.Environment env) {
         CgenSupport.emitLoadString(CgenSupport.ACC,
                                    (StringSymbol)AbstractTable.stringtable.lookup(token.getString()), s);
     }
@@ -1766,7 +1722,14 @@ class new_ extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, Environment env) {
+    public void code(PrintStream s, CgenClassTable.Environment env) {
+        CgenSupport.emitLoadAddress("$a0", type_name + "_protObj", s);
+        CgenSupport.emitJal("Object.copy", s);
+        CgenSupport.emitJal(type_name + "_init", s);
+    }
+    
+    public int calculateTemps() {
+        return 0;
     }
 
 
@@ -1807,7 +1770,7 @@ class isvoid extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, Environment env) {
+    public void code(PrintStream s, CgenClassTable.Environment env) {
     }
 
 
@@ -1843,7 +1806,11 @@ class no_expr extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, Environment env) {
+    public void code(PrintStream s, CgenClassTable.Environment env) {
+    }
+    
+    public int calculateTemps() {
+        return 0;
     }
 
 
@@ -1884,13 +1851,8 @@ class object extends Expression {
       * you wish.)
       * @param s the output stream 
       * */
-    public void code(PrintStream s, Environment env) {
-        if (name.equals(TreeConstants.self)) {
-            CgenSupport.emitMove("$a0", "$s0", s);
-        } else {
-            int offset = env.variableOffset(name);
-            CgenSupport.emitLoad("$a0", offset, "$fp", s);
-        }
+    public void code(PrintStream s, CgenClassTable.Environment env) {
+        env.generateIdLookup(name, s);
     }
     
     public int calculateTemps() {

@@ -173,6 +173,10 @@ class CgenNode extends class_ {
         return methods.indexOf(methodName);
     }
     
+    int attrOffset(AbstractSymbol attrName) {
+        return 3 + attributes.indexOf(attrName);
+    }
+    
     void codeProtoObject(PrintStream s, IntTable intTable) {
         s.println(name + "_protObj:");
         s.println(CgenSupport.WORD + id);
@@ -195,28 +199,69 @@ class CgenNode extends class_ {
         s.println(CgenSupport.WORD + "-1");
     }
     
-    void codeInit(PrintStream s) {
+    void codeInit(PrintStream s, CgenClassTable classTable) {
+        Feature feature;
+        Enumeration e;
+        CgenClassTable.Environment env;
+        
+        List<Integer> t = new Vector<Integer>();
+        t.add(0);
+        
+        if (!basic()) {
+            for (e = features.getElements(); e.hasMoreElements(); ) {
+                feature = (Feature)e.nextElement();
+                if (feature instanceof attr) {
+                    t.add(1 + ((attr)feature).calculateTemps());
+                }
+            }
+        }
+        
+        int temps     = Collections.max(t),
+            frameSize = 12 + 4 * temps;
+        
         s.println(name + "_init:");
-        CgenSupport.emitPush("$ra", s);
+        
+        CgenSupport.emitAddiu("$sp", "$sp", -frameSize, s);
+        
+        CgenSupport.emitStore("$fp", temps + 3, "$sp", s);
+        CgenSupport.emitStore("$ra", temps + 2, "$sp", s);
+        CgenSupport.emitStore("$s0", temps + 1, "$sp", s);
+        
+        CgenSupport.emitAddiu("$fp", "$sp", 4, s);
+        CgenSupport.emitMove("$s0", "$a0", s);
+        
         if (!name.equals(TreeConstants.Object_)) {
             CgenSupport.emitJal(parent.name + "_init", s);
         }
-        // TODO initialize attributes
-        CgenSupport.emitLoad("$ra", 1, "$sp", s);
-        CgenSupport.emitAddiu("$sp", "$sp", 4, s);
+        
+        if (!basic()) {
+            env = classTable.createEnv(name, TreeConstants.self, new Vector<AbstractSymbol>(), 3, temps, 0);
+            for (e = features.getElements(); e.hasMoreElements(); ) {
+                feature = (Feature)e.nextElement();
+                if (feature instanceof attr) {
+                    ((attr)feature).code(s, env);
+                }
+            }
+        }
+        
+        CgenSupport.emitLoad("$fp", temps + 3, "$sp", s);
+        CgenSupport.emitLoad("$ra", temps + 2, "$sp", s);
+        CgenSupport.emitLoad("$s0", temps + 1, "$sp", s);
+        
+        CgenSupport.emitAddiu("$sp", "$sp", frameSize, s);
         CgenSupport.emitReturn(s);
     }
     
     void codeMethods(PrintStream s, CgenClassTable classTable) {
-        codeInit(s);
+        codeInit(s, classTable);
         
-        if (basic_status == 0) return;
+        if (basic()) return;
         
         Feature feature;
         for (Enumeration e = features.getElements(); e.hasMoreElements(); ) {
             feature = (Feature)e.nextElement();
             if (feature instanceof method) {
-                ((method)feature).code(s, name, classTable);
+                ((method)feature).code(s, classTable, name);
             }
         }
     }
