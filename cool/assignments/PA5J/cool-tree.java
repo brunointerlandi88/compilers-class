@@ -1538,11 +1538,11 @@ class eq extends Expression {
         e1.code(s, env);
         env.pushTemp("$a0", s);
         e2.code(s, env);
+        CgenSupport.emitMove("$t2", "$a0", s);
         env.popTemp("$t1", s);
-        
-        CgenSupport.emitUnbox("$t1", "$a0", s);
-        s.println("\tseq\t$a0 $t1 $a0");
-        CgenSupport.emitBoxBool("$a0", env.tempOffset(), s);
+        CgenSupport.emitLoadAddress("$a0", "bool_const1", s);
+        CgenSupport.emitLoadAddress("$a1", "bool_const0", s);
+        CgenSupport.emitJal("equality_test", s);
     }
     
     public int calculateTemps() {
