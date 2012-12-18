@@ -1637,6 +1637,10 @@ class bool_const extends Expression {
     public void code(PrintStream s, CgenClassTable.Environment env) {
         CgenSupport.emitLoadBool(CgenSupport.ACC, new BoolConst(val), s);
     }
+    
+    public int calculateTemps() {
+        return 0;
+    }
 
 }
 
