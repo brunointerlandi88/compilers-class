@@ -511,7 +511,7 @@ class CgenClassTable extends SymbolTable {
         }
         
         public int localOffset(AbstractSymbol name) {
-            int offset = locals.indexOf(name);
+            int offset = locals.lastIndexOf(name);
             if (offset >= 0) {
                 return offset;
             }

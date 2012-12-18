@@ -1385,6 +1385,14 @@ class neg extends Expression {
       * @param s the output stream 
       * */
     public void code(PrintStream s, CgenClassTable.Environment env) {
+        e1.code(s, env);
+        CgenSupport.emitLoad("$t1", 3, "$a0", s);
+        s.println("\tneg\t$t1 $t1");
+        CgenSupport.emitBoxBool("$t1", env.tempOffset(), s);
+    }
+    
+    public int calculateTemps() {
+        return e1.calculateTemps();
     }
 
 
@@ -1609,6 +1617,14 @@ class comp extends Expression {
       * @param s the output stream 
       * */
     public void code(PrintStream s, CgenClassTable.Environment env) {
+        e1.code(s, env);
+        CgenSupport.emitLoad("$t1", 3, "$a0", s);
+        s.println("\tnot\t$t1 $t1");
+        CgenSupport.emitBoxBool("$t1", env.tempOffset(), s);
+    }
+    
+    public int calculateTemps() {
+        return e1.calculateTemps();
     }
 
 
