@@ -167,9 +167,28 @@ class CgenSupport {
     }
     
     static void emitNew(AbstractSymbol type, PrintStream s) {
-        emitLoadAddress("$a0", type + "_protObj", s);
-        emitJal("Object.copy", s);
-        emitJal(type + "_init", s);
+        if (type.equals(TreeConstants.SELF_TYPE)) {
+            emitLoadAddress("$a0", "class_objTab", s);
+            emitLoad("$t1", 0, "$s0", s);
+            emitSll("$t1", "$t1", 3, s);
+            emitAdd("$a0", "$a0", "$t1", s);
+            
+            emitPush("$a0", s);
+            emitLoad("$a0", 0, "$a0", s);
+            
+            emitJal("Object.copy", s);
+            
+            emitLoad("$t1", 1, "$sp", s);
+            emitAddiu("$sp", "$sp", 4, s);
+            
+            emitAddiu("$t1", "$t1", 4, s);
+            emitLoad("$t1", 0, "$t1", s);
+            emitJalr("$t1", s);
+        } else {
+            emitLoadAddress("$a0", type + "_protObj", s);
+            emitJal("Object.copy", s);
+            emitJal(type + "_init", s);
+        }
     }
 
     /** Emits the LI instruction.
