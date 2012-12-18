@@ -478,6 +478,7 @@ class CgenClassTable extends SymbolTable {
         private AbstractSymbol currentClass;
         private AbstractSymbol methodName;
         private List<AbstractSymbol> formals;
+        private List<AbstractSymbol> locals;
         private int headers;
         private int temporaries;
         private int tempOffset;
@@ -491,6 +492,7 @@ class CgenClassTable extends SymbolTable {
             this.currentClass = currentClass;
             this.methodName   = methodName;
             this.formals      = formals;
+            this.locals       = new Vector<AbstractSymbol>();
             this.headers      = headers;
             this.temporaries  = temporaries;
             this.tempOffset   = tempOffset;
@@ -509,36 +511,59 @@ class CgenClassTable extends SymbolTable {
         }
         
         public int localOffset(AbstractSymbol name) {
-            int index = formals.indexOf(name);
-            if (index < 0) {
-                return index;
+            int offset = locals.indexOf(name);
+            if (offset >= 0) {
+                return offset;
+            }
+            offset = formals.indexOf(name);
+            if (offset >= 0) {
+                return headers + temporaries + formals.size() - offset - 1;
+            }
+            return -1;
+        }
+        
+        public void assign(String reg, AbstractSymbol id, PrintStream s) {
+            int offset = localOffset(id);
+            if (offset >= 0) {
+                CgenSupport.emitStore("$a0", offset, "$fp", s);
             } else {
-                return headers + temporaries + formals.size() - index - 1;
+                offset = attributeOffset(id);
+                CgenSupport.emitStore("$a0", offset, "$s0", s);
             }
         }
         
-        public void generateIdLookup(AbstractSymbol id, PrintStream s) {
+        public void lookup(AbstractSymbol id, PrintStream s) {
             if (id.equals(TreeConstants.self)) {
                 CgenSupport.emitMove("$a0", "$s0", s);
+                return;
+            }
+            int offset = localOffset(id);
+            if (offset >= 0) {
+                CgenSupport.emitLoad("$a0", offset, "$fp", s);
             } else {
-                int offset = localOffset(id);
-                if (offset >= 0) {
-                    CgenSupport.emitLoad("$a0", offset, "$fp", s);
-                } else {
-                    offset = attributeOffset(id);
-                    CgenSupport.emitLoad("$a0", offset, "$s0", s);
-                }
+                offset = attributeOffset(id);
+                CgenSupport.emitLoad("$a0", offset, "$s0", s);
             }
         }
         
         public void pushTemp(String reg, PrintStream s) {
-            CgenSupport.emitStore(reg, tempOffset, "$fp", s);
-            tempOffset++;
+            pushBinding(reg, null, s);
         }
         
         public void popTemp(String reg, PrintStream s) {
-            tempOffset--;
+            popBinding();
             CgenSupport.emitLoad(reg, tempOffset, "$fp", s);
+        }
+        
+        public void pushBinding(String reg, AbstractSymbol id, PrintStream s) {
+            CgenSupport.emitStore(reg, tempOffset, "$fp", s);
+            tempOffset++;
+            locals.add(id);
+        }
+        
+        public void popBinding() {
+            tempOffset--;
+            if (!locals.isEmpty()) locals.remove(locals.size() - 1);
         }
         
         public int tempOffset() {

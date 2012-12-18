@@ -620,6 +620,12 @@ class assign extends Expression {
       * @param s the output stream 
       * */
     public void code(PrintStream s, CgenClassTable.Environment env) {
+        expr.code(s, env);
+        env.assign("$a0", name, s);
+    }
+    
+    public int calculateTemps() {
+        return expr.calculateTemps();
     }
 
 
@@ -1041,6 +1047,17 @@ class let extends Expression {
       * @param s the output stream 
       * */
     public void code(PrintStream s, CgenClassTable.Environment env) {
+        init.code(s, env);
+        env.pushBinding("$a0", identifier, s);
+        body.code(s, env);
+        env.popBinding();
+    }
+    
+    public int calculateTemps() {
+        List<Integer> temps = new Vector<Integer>();
+        temps.add(init.calculateTemps());
+        temps.add(1 + body.calculateTemps());
+        return Collections.max(temps);
     }
 
 
@@ -1856,7 +1873,7 @@ class object extends Expression {
       * @param s the output stream 
       * */
     public void code(PrintStream s, CgenClassTable.Environment env) {
-        env.generateIdLookup(name, s);
+        env.lookup(name, s);
     }
     
     public int calculateTemps() {
