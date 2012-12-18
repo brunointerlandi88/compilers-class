@@ -1117,7 +1117,11 @@ class let extends Expression {
       * */
     public void code(PrintStream s, CgenClassTable.Environment env) {
         if (init.isNull()) {
-            CgenSupport.emitNew(type_decl, s);
+            if (env.isBasicType(type_decl)) {
+                CgenSupport.emitNew(type_decl, s);
+            } else {
+                CgenSupport.emitLoadImm("$a0", 0, s);
+            }
         } else {
             init.code(s, env);
         }
