@@ -686,6 +686,31 @@ class static_dispatch extends Expression {
       * @param s the output stream 
       * */
     public void code(PrintStream s, CgenClassTable.Environment env) {
+        Expression exp;
+        for (Enumeration e = actual.getElements(); e.hasMoreElements(); ) {
+            exp = (Expression)e.nextElement();
+            exp.code(s, env);
+            CgenSupport.emitPush("$a0", s);
+        }
+        
+        expr.code(s, env);
+        CgenSupport.emitLoadAddress("$t1", type_name + "_dispTab", s);
+        
+        int offset = env.methodOffset(type_name, name);
+        
+        CgenSupport.emitLoad("$t1", offset, "$t1", s);
+        CgenSupport.emitJalr("$t1", s);
+    }
+    
+    public int calculateTemps() {
+        List<Integer> temps = new Vector<Integer>();
+        temps.add(expr.calculateTemps());
+        
+        for (Enumeration e = actual.getElements(); e.hasMoreElements(); ) {
+            temps.add(((Expression)e.nextElement()).calculateTemps());
+        }
+        
+        return Collections.max(temps);
     }
 
 
